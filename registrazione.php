@@ -1,7 +1,6 @@
 <?php
 global $pdo;
 session_start();
-//$ip_add = getenv("REMOTE_ADDR");
 include "db/connect.php";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $userType = $_POST["tipologiaUtente"];
@@ -32,18 +31,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bindParam(7, $indirizzo, PDO::PARAM_STR);
 
         if ($stmt->execute()) {
-            echo "Registration successful!";
+            echo '<script>
+            alert("Registrazione Completata!");
+            setTimeout(function() {
+                window.location.href = "index.php";
+            }, 3000); // 3 seconds delay
+          </script>';
+            exit(); // Make sure to exit after the JavaScript code
         } else {
             echo "Error: " . $stmt->errorInfo()[2]; // Use errorInfo to get the error message
         }
 
         $stmt->closeCursor(); // Close the cursor to release resources
-        $pdo->close();
     }
 
 // Now, based on $userType, you can process the form accordingly
     if ($userType === "Utente") {
-
         $nome = $_POST["nome"];
         $cognome = $_POST["cognome"];
         $luogoNascita = $_POST["luogoNascita"];
@@ -53,16 +56,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $sql = "CALL registrazioneUtente(?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $pdo->prepare($sql);
-        $stmt->bind_param("sssssssss", $email, $password, $tipologiaUtente, $nome, $cognome, $luogoNascita, $annoNascita, $tipologia, $tipoAbbonamento);
+
+        // Bind parameters using PDO-style binding
+        $stmt->bindParam(1, $email, PDO::PARAM_STR);
+        $stmt->bindParam(2, $password, PDO::PARAM_STR);
+        $stmt->bindParam(3, $tipologiaUtente, PDO::PARAM_STR);
+        $stmt->bindParam(4, $nome, PDO::PARAM_STR);
+        $stmt->bindParam(5, $cognome, PDO::PARAM_STR);
+        $stmt->bindParam(6, $luogoNascita, PDO::PARAM_STR);
+        $stmt->bindParam(7, $annoNascita, PDO::PARAM_STR);
+        $stmt->bindParam(8, $tipologia, PDO::PARAM_STR);
+        $stmt->bindParam(9, $tipoAbbonamento, PDO::PARAM_STR);
 
         if ($stmt->execute()) {
-            echo "Registration successful!";
+            echo '<script>
+            alert("Registrazione Completata!");
+            setTimeout(function() {
+                window.location.href = "index.php";
+            }, 3000); // 3 seconds delay
+          </script>';
+            exit(); // Make sure to exit after the JavaScript code
         } else {
-            echo "Error: " . $stmt->error;
+            echo "Error: " . $stmt->errorInfo()[2]; // Use errorInfo to get the error message
         }
 
         $stmt->closeCursor(); // Close the cursor to release resources
-        $pdo->close();
     }
 }
 ?>

@@ -1,27 +1,55 @@
 <?php
+global $pdo;
 session_start();
 include "db/connect.php"; // Assicurati che questo include sia corretto e includa la connessione al database.
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST["email"];
     $password = $_POST["password"];
-    $tipologiaUtente = $_POST["tipologiaUtente"];
 
-    $sql = "CALL login(?, ?)
+    $sql = "CALL loginUtente(?, ?, @utentebase_id, @utentebase_email, @utentebase_tipologiaUtente, @utente_tipologia)";
     $stmt = $pdo->prepare($sql);
-    
+
     $stmt->bindParam(1, $email, PDO::PARAM_STR);
     $stmt->bindParam(2, $password, PDO::PARAM_STR);
 
     if ($stmt->execute()) {
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($user) {
-            // L'utente è stato autenticato con successo, puoi gestire la sessione e reindirizzare a una pagina successiva.
-            $_SESSION["user"] = $user;
-            header("Location: dashboard.php"); // Cambia "dashboard.php" con la pagina a cui desideri reindirizzare l'utente dopo il login.
-            exit();
+        // Optionally fetch the output variables using a separate query
+        $outputStmt = $pdo->query("SELECT @utentebase_id, @utentebase_email, @utentebase_tipologiaUtente, @utente_tipologia");
+        $output = $outputStmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($output) {
+            // Handle the output variables here
+            $utentebase_id = (int)$output['@utentebase_id']; // Cast to integer
+            $utentebase_email = $output['@utentebase_email'];
+            $utentebase_tipologiaUtente = $output['@utentebase_tipologiaUtente'];
+            $utente_tipologiaUtenteFisico = $output['@utente_tipologia'];
+
+            // Check if login was successful and handle session storage
+            if ($utentebase_id !== null) {
+                // Store relevant user information in the session
+                $_SESSION['user'] = [
+                    'idUtente' => $utentebase_id,
+                    'email' => $utentebase_email,
+                    'tipologiaUtente' => $utentebase_tipologiaUtente,
+                    'tipologia' => $utente_tipologiaUtenteFisico,
+                ];
+                echo '<script>
+                  alert("Registrazione Completata! \n' .
+                    'ID Utente: ' . $_SESSION['user']['idUtente'] . '\n' .
+                    'Email: ' . $_SESSION['user']['email'] . '\n' .
+                    'Tipologia Utente: ' . $_SESSION['user']['tipologiaUtente'] . '\n' .
+                    'Tipologia: ' . $_SESSION['user']['tipologia'] . '");
+                setTimeout(function() {
+                    window.location.href = "dashboard.php";
+                }, 3000); // 3 seconds delay
+              </script>';
+                exit(); // Make sure to exit after the JavaScript code
+            } else {
+                $loginError = "Credenziali non valide.";
+            }
         } else {
-            $loginError = "Credenziali non valide.";
+            $loginError = "Errore durante la query di output.";
         }
     } else {
         $loginError = "Errore durante l'esecuzione della query.";
@@ -51,12 +79,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <label for="password">Password:</label>
         <input type="password" name="password" required><br>
-
-        <label for="tipologiaUtente">User Type:</label>
-        <select name="tipologiaUtente" required id="userTypeSelect">
-            <option value="Utente">Utente</option>
-            <option value="Azienda">Azienda</option>
-        </select><br>
 
         <input type="submit" value="Login">
     </form>
