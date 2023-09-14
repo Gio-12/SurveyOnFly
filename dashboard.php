@@ -1,4 +1,5 @@
 <?php
+global $pdo;
 session_start();
 
 // Verifica se l'utente è autenticato
@@ -14,19 +15,20 @@ include "db/connect.php";
 $user = [
     "id" => 1,
     "nome" => "Nome Utente",
+    "tipo" => "premium" // Tipo utente: "premium", "amministratore" o altro
     // Aggiungi altri dati dell'utente qui
 ];
 
 // Esegui le procedure per ottenere i dati necessari
 
 // Esempio di chiamata a una procedura per ottenere la lista dei domini di interesse
-$stmt = $pdo->prepare("CALL getListDominioUtente(:userId)");
-$stmt->bindParam(":userId", $user["id"], PDO::PARAM_INT);
-$stmt->execute();
-$dominiInteresse = $stmt->fetchAll(PDO::FETCH_ASSOC);
+/*f ($user["tipo"] === "premium") {
+    $stmt = $pdo->prepare("CALL procedura_ottieni_domini_interesse(:userId)");
+    $stmt->bindParam(":userId", $user["id"], PDO::PARAM_INT);
+    $stmt->execute();
+    $dominiInteresse = $stmt->fetchAll(PDO::FETCH_ASSOC);
+}*/
 
-// Chiudi la connessione al database
-$pdo = null;
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -60,14 +62,36 @@ $pdo = null;
                 <li class="nav-item">
                     <a class="nav-link" href="#">Premi</a>
                 </li>
-                <!-- Aggiungi altri collegamenti per le tue operazioni utente qui -->
-            </ul>
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Benvenuto, <?php echo $user["nome"]; ?></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="logout.php">Logout</a>
+                <?php if ($user["tipo"] === "premium" || $user["tipo"] === "amministratore"): ?>
+                    <!-- Collegamenti per utenti premium e amministratori -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Inserisci Domanda</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Crea Sondaggio</a>
+                    </li>
+                    <?php if ($user["tipo"] === "amministratore"): ?>
+                        <!-- Collegamenti solo per amministratori -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Inserisci Premio</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Inserisci Dominio</a>
+                        </li>
+                    <?php endif; ?>
+                <?php endif; ?>
+                <!-- Collegamento per la lista dei domini di interesse -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="dominiDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Domini di Interesse
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="dominiDropdown">
+                        <?php foreach ($dominiInteresse as $dominio): ?>
+                            <a class="dropdown-item" href="#">
+                                <?php echo $dominio["nome"]; ?>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
                 </li>
             </ul>
         </div>
