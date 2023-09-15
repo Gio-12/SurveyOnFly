@@ -2,28 +2,27 @@
 session_start();
 if (!isset($_SESSION['user'])) {
     // Redirect the user to the login page or any other desired page
-    header("Location: login.php"); // Change "login.php" to the desired page
-    exit(); // Ensure script execution stops here
+    header("Location: login.php"); // Cambia "login.php" con la pagina di login desiderata
+    exit(); // Assicura che l'esecuzione dello script si interrompa qui
 }
 global $pdo;
-include "db/connect.php"; // Include your database connection script
+include "db/connect.php"; // Includi lo script di connessione al database
 
 try {
     $userId = $_SESSION['user']['idUtente'];
     $userType = $_SESSION['user']['tipologia'];
 
-     if ($userType == 'Premium' || $userType == 'Amministratore') {
+    if ($userType == 'Premium' || $userType == 'Amministratore') {
 
-         $sqlSentInvitations = "CALL getListaInvitoMittente(?)";
+        $sqlSentInvitations = "CALL getListaInvitoMittente(?)";
 
-         $stmtSentInvitations = $pdo->prepare($sqlSentInvitations);
-         $stmtSentInvitations->bindParam(1, $userId, PDO::PARAM_INT);
-         $stmtSentInvitations->execute();
-         $sentInvitations = $stmtSentInvitations->fetchAll(PDO::FETCH_ASSOC);
+        $stmtSentInvitations = $pdo->prepare($sqlSentInvitations);
+        $stmtSentInvitations->bindParam(1, $userId, PDO::PARAM_INT);
+        $stmtSentInvitations->execute();
+        $sentInvitations = $stmtSentInvitations->fetchAll(PDO::FETCH_ASSOC);
 
-         $stmtSentInvitations->closeCursor();
-     }
-
+        $stmtSentInvitations->closeCursor();
+    }
 
     // Call the stored procedure to fetch invitations
     $sqlInvitations = "CALL getListaInvitoRicevente(?)";
@@ -34,6 +33,53 @@ try {
     $invitations = $stmtInvitations->fetchAll(PDO::FETCH_ASSOC);
 
     $stmtInvitations->closeCursor();
+
+    // Verifica lo stato del sondaggio per ciascun invito
+    foreach ($invitations as &$invitation) {
+        $sondaggioId = $invitation['idSondaggio']; // Sostituisci con il nome corretto della colonna che contiene l'ID del sondaggio
+        $sqlCheckSondaggio = "SELECT stato, dataChiusura FROM sondaggio WHERE id = ?";
+        $stmtCheckSondaggio = $pdo->prepare($sqlCheckSondaggio);
+        $stmtCheckSondaggio->bindParam(1, $sondaggioId, PDO::PARAM_INT);
+        $stmtCheckSondaggio->execute();
+        $sondaggioDataChiusura = $stmtCheckSondaggio->fetch(PDO::FETCH_ASSOC);
+        $stmtCheckSondaggio->closeCursor();
+
+        // Verifica se la data di chiusura è successiva alla data corrente
+        $dataChiusura = new DateTime($sondaggioDataChiusura['dataChiusura']);
+        $dataCorrente = new DateTime();
+
+        if ($dataChiusura > $dataCorrente) {
+            // Il sondaggio è ancora attivo
+            $invitation['sondaggio_stato'] = "Attivo";
+        } else {
+            // Il sondaggio non è più attivo
+            $invitation['sondaggio_stato'] = "Non attivo";
+        }
+    }
+
+    // Verifica lo stato degli inviti mandati
+    foreach ($sentInvitations as &$sentInvitation) {
+        $sondaggioId = $sentInvitation['idSondaggio']; // Sostituisci con il nome corretto della colonna che contiene l'ID del sondaggio
+        $sqlCheckSondaggio = "SELECT stato, dataChiusura FROM sondaggio WHERE id = ?";
+        $stmtCheckSondaggio = $pdo->prepare($sqlCheckSondaggio);
+        $stmtCheckSondaggio->bindParam(1, $sondaggioId, PDO::PARAM_INT);
+        $stmtCheckSondaggio->execute();
+        $sondaggioDataChiusura = $stmtCheckSondaggio->fetch(PDO::FETCH_ASSOC);
+        $stmtCheckSondaggio->closeCursor();
+
+        // Verifica se la data di chiusura è successiva alla data corrente
+        $dataChiusura = new DateTime($sondaggioDataChiusura['dataChiusura']);
+        $dataCorrente = new DateTime();
+
+        if ($dataChiusura > $dataCorrente) {
+            // Il sondaggio è ancora attivo
+            $sentInvitation['sondaggio_stato'] = "Attivo";
+        } else {
+            // Il sondaggio non è più attivo
+            $sentInvitation['sondaggio_stato'] = "Non attivo";
+        }
+    }
+
 } catch (PDOException $e) {
     echo "Error: " . $e->getMessage();
 }
@@ -60,6 +106,7 @@ try {
         <tr>
             <th>Sondaggio</th>
             <th>Mittente</th>
+            <th>Stato</th>
             <th>Actions</th>
         </tr>
         </thead>
@@ -68,8 +115,9 @@ try {
             <tr>
                 <td><?php echo $invitation['sondaggio_nome']; ?></td>
                 <td><?php echo $invitation['mittente_email']; ?></td>
+                <td><?php echo $invitation['sondaggio_stato']; ?></td>
                 <td>
-                    <?php if ($invitation['hasValue'] == 0) { ?>
+                    <?php if ($invitation['hasValue'] == 0 && $invitation['sondaggio_stato'] == 'Attivo') { ?>
                         <button class="btn btn-success accept-invitation" data-invitation-id="<?php echo $invitation['codice']; ?>">Accetta</button>
                         <button class="btn btn-danger reject-invitation" data-invitation-id="<?php echo $invitation['codice']; ?>">Rifiuta</button>
                     <?php } else { ?>
@@ -96,13 +144,7 @@ try {
             <tr>
                 <td><?php echo $sentInvitation['sondaggio_nome']; ?></td>
                 <td><?php echo $sentInvitation['mittente_email']; ?></td>
-                <td>
-                    <?php if ($sentInvitation['hasValue'] == 0) { ?>
-                        sconosciuto;
-                    <?php } else { ?>
-                        <?php echo $sentInvitation['esito']; ?>
-                    <?php } ?>
-                </td>
+                <td><?php echo $sentInvitation['sondaggio_stato']; ?></td>
             </tr>
         <?php } ?>
         </tbody>
@@ -112,20 +154,20 @@ try {
 </html>
 <script>
     $(document).ready(function () {
-        // Handle click on "Accetta" button
+        // Gestisci il clic sul pulsante "Accetta"
         $(".accept-invitation").click(function () {
             var invitationId = $(this).data("invitation-id");
-            respondToInvitation(invitationId, "Accettato");
+            rispondiAInvito(invitationId, "Accettato");
         });
 
-        // Handle click on "Rifiuta" button
+        // Gestisci il clic sul pulsante "Rifiuta"
         $(".reject-invitation").click(function () {
             var invitationId = $(this).data("invitation-id");
-            respondToInvitation(invitationId, "Rifiutato");
+            rispondiAInvito(invitationId, "Rifiutato");
         });
 
-        function respondToInvitation(invitationId, response) {
-            // Make an AJAX call to invito_risposta.php
+        function rispondiAInvito(invitationId, response) {
+            // Effettua una chiamata AJAX a invito_risposta.php
             $.ajax({
                 type: "POST",
                 url: "invito_risposta.php",
@@ -134,14 +176,14 @@ try {
                     response: response
                 },
                 success: function (data) {
-                    // Handle the success response, e.g., update the UI
-                    alert(data); // Show a success message (you can replace this with your own handling)
+                    // Gestisci la risposta di successo, ad esempio, aggiorna l'interfaccia utente
+                    alert(data); // Mostra un messaggio di successo (puoi sostituire questo con la tua gestione personalizzata)
                     location.reload();
                 },
                 error: function (xhr, status, error) {
-                    // Handle errors here
+                    // Gestisci gli errori qui
                     console.error(error);
-                    alert("Error: " + error);
+                    alert("Errore: " + error);
                     location.reload();
                 }
             });
