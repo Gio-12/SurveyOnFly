@@ -2,30 +2,33 @@
 global $pdo;
 session_start();
 include "db/connect.php"; // Include your database connection script
+$userDomainsList = [];
 try {
-    // Prepare the call to the stored procedure to get the list of all prizes
+    // Prepare the call to the stored procedure to get the list of all domains
     $sqlAllDomains = "CALL getListaDominio()";
     $stmtAllDomains = $pdo->prepare($sqlAllDomains);
 
-    // Execute the stored procedure to get all prizes
+    // Execute the stored procedure to get all domains
     $stmtAllDomains->execute();
 
-    // Fetch the results of all prizes into an associative array
+    // Fetch the results of all domains into an associative array
     $domainsList = $stmtAllDomains->fetchAll(PDO::FETCH_ASSOC);
 
     $stmtAllDomains->closeCursor();
 
-    $sqlAllUserDomains = "CALL getListaDominioUtente()";
+    $sqlAllUserDomains = "CALL getListaDominioUtente(?)";
     $stmtAllUserDomains = $pdo->prepare($sqlAllUserDomains);
 
-    // Execute the stored procedure to get all prizes
+    $userId = $_SESSION['user']['idUtente'];
+
+    $stmtAllUserDomains->bindParam(1, $userId, PDO::PARAM_INT);
+    // Execute the stored procedure to get all user domains
     $stmtAllUserDomains->execute();
 
-    // Fetch the results of all prizes into an associative array
+    // Fetch the results of all user domains into an associative array
     $userDomainsList = $stmtAllUserDomains->fetchAll(PDO::FETCH_ASSOC);
 
     $stmtAllUserDomains->closeCursor();
-
 } catch (PDOException $e) {
     echo "Error: " . $e->getMessage();
 }
@@ -52,11 +55,10 @@ try {
                 <div class="row">
                     <div class="col-sm-8"><h2>Lista <b>Domini</b></h2></div>
                     <div class="col-sm-4">
-                        <!--                        --><?php //if ($_SESSION['user']['tipologia'] === 'Amministratore') { ?>
-                        <a href="dominio_add.php" type="button" class="btn btn-info add-new"><i class="fa fa-plus"></i> Aggiungi Nuovo Dominio</a>
-                        <!--                        --><?php //} else {
-                        //                            echo '<td></td>';
-                        //                        }?>
+                        <?php if ($_SESSION['user']['tipologia'] === 'Amministratore') { ?>
+                            <a href="dominio_add.php" type="button" class="btn btn-info add-new"><i
+                                        class="fa fa-plus"></i> Aggiungi Nuovo Dominio</a>
+                        <?php } ?>
                     </div>
                 </div>
             </div>
@@ -69,48 +71,39 @@ try {
                 </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($domainsList as $dominio) { ?>
+                <?php foreach ($domainsList as $dominio) {
+                    $domainId = $dominio['id'];
+                    $isUserDomain = false;
+
+                    if ($userDomainsList !== null) {
+                        // Check if the domain is in the user's domain list
+                        foreach ($userDomainsList as $userDomain) {
+                            if ($userDomain['idDominio'] === $domainId) {
+                                $isUserDomain = true;
+                                break;
+                            }
+                        }
+                    }
+                    ?>
                     <tr>
                         <td><?php echo $dominio['nome']; ?></td>
                         <td><?php echo $dominio['descrizione']; ?></td>
-       1                 <td>
-                            <!--                            --><?php //if ($_SESSION['user']['tipologia'] === 'Amministratore') { ?>
-                            <!--                            <a href="premio_edit.php?id=--><?php //echo $premio['id']; ?><!--" class="edit" title="Edit" data-toggle="tooltip" data-action="edit"><i class="material-icons">&#xE254;</i></a>-->
-                            <!--                            <a href="#" class="delete" title="Delete" data-toggle="tooltip" data-action="delete"><i class="material-icons">&#xE872;</i></a>-->
-                            <!--                            --><?php //} ?>
+                        <td>
+                            <?php if ($isUserDomain) { ?>
+                                <!-- Show Remove button -->
+                                <a href="#" class="remove" title="Remove" data-toggle="tooltip"
+                                   data-action="remove"><i class="material-icons">&#xE872;</i></a>
+                            <?php } else { ?>
+                                <!-- Show Add button -->
+                                <a href="#" class="add" title="Add" data-toggle="tooltip"
+                                   data-action="add"><i class="material-icons">&#xE03B;</i></a>
+                            <?php } ?>
                         </td>
                     </tr>
                 <?php } ?>
                 </tbody>
             </table>
         </div>
-    </div>
-</div>
-<div class="container">
-    <h2>User's Prizes Carousel</h2>
-    <div id="userPrizesCarousel" class="carousel slide" data-ride="carousel">
-        <!-- Slides -->
-        <div class="carousel-inner">
-            <?php foreach ($userPrizes as $index => $prize) { ?>
-                <div class="carousel-item<?php echo ($index === 0) ? ' active' : ''; ?>">
-                    <!--                    <img src="--><?php //echo $prize['foto']; ?><!--" alt="Prize Image">-->
-                    <h1><?php echo $prize['nome']; ?></h1>
-                    <!--                    <div class="carousel-caption">-->
-                    <!--                        <h3>--><?php //echo $prize['nome']; ?><!--</h3>-->
-                    <!--                    </div>-->
-                </div>
-            <?php } ?>
-        </div>
-
-        <!-- Controls -->
-        <a class="carousel-control-prev" href="#userPrizesCarousel" role="button" data-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="sr-only">Previous</span>
-        </a>
-        <a class="carousel-control-next" href="#userPrizesCarousel" role="button" data-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="sr-only">Next</span>
-        </a>
     </div>
 </div>
 </body>

@@ -13,26 +13,32 @@ include "db/connect.php"; // Include your database connection script
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     try {
         // Prepare the call to the stored procedure addPremioAmministrazione
-        $sqlAddPremio = "CALL addPremioAmministrazione(:admin_UserId, :new_Nome, :new_Descrizione, :new_Foto, :new_NumMinimoPunti)";
-        $stmtAddPremio = $pdo->prepare($sqlAddPremio);
-
         // Bind parameters using PDO-style binding
         $adminUserId = $_SESSION['user']['idUtente'];
         $newNome = $_POST["new_Nome"];
         $newDescrizione = $_POST["new_Descrizione"];
-        $newFoto = file_get_contents($_FILES['new_Foto']['tmp_name']);
         $newNumMinimoPunti = $_POST["new_NumMinimoPunti"];
+        if (isset($_FILES['new_Foto']) && $_FILES['new_Foto']['size'] > 0) {
+            $newFoto = file_get_contents($_FILES['new_Foto']['tmp_name']);
+        } else {
+            $newFoto = null; // Set it to null if no file was uploaded
+        }
 
-        $stmtAddPremio->bindParam(":admin_UserId", $adminUserId, PDO::PARAM_INT);
-        $stmtAddPremio->bindParam(":new_Nome", $newNome, PDO::PARAM_STR);
-        $stmtAddPremio->bindParam(":new_Descrizione", $newDescrizione, PDO::PARAM_STR);
-        $stmtAddPremio->bindParam(":new_Foto", $newFoto, PDO::PARAM_LOB);
-        $stmtAddPremio->bindParam(":new_NumMinimoPunti", $newNumMinimoPunti, PDO::PARAM_STR);
+        $sqlAddPremio = "CALL addPremioAmministrazione(?, ?, ?, ?, ?)";
+        $stmtAddPremio = $pdo->prepare($sqlAddPremio);
+
+        $stmtAddPremio->bindParam(1, $adminUserId, PDO::PARAM_INT);
+        $stmtAddPremio->bindParam(2, $newNome, PDO::PARAM_STR);
+        $stmtAddPremio->bindParam(3, $newDescrizione, PDO::PARAM_STR);
+        $stmtAddPremio->bindParam(4, $newFoto, PDO::PARAM_LOB);
+        $stmtAddPremio->bindParam(5, $newNumMinimoPunti, PDO::PARAM_STR);
 
         if ($stmtAddPremio->execute()) {
             echo '<script>
                 alert("Premio added successfully!");
-                window.location.href = "premio.php"; // Redirect to the premio list page
+                setTimeout(function() {
+                    window.location.href = "premio.php";
+                }, 3000); // Redirect to the premio list page
             </script>';
             exit(); // Make sure to exit after the JavaScript code
         } else {
@@ -55,7 +61,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
 <div class="container">
     <h2>Crea nuovo premio</h2>
-    <form action="add_premio.php" method="POST" enctype="multipart/form-data">
+    <form action="premio_add.php" method="POST" enctype="multipart/form-data">
         <div class="form-group">
             <label for="new_Nome">Nome:</label>
             <input type="text" class="form-control" id="new_Nome" name="new_Nome" required>
@@ -66,14 +72,53 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
         <div class="form-group">
             <label for="new_Foto">Foto:</label>
-            <input type="file" class="form-control-file" id="new_Foto" name="new_Foto" accept="image/*" required>
+            <input type="file" class="form-control-file" id="new_Foto" name="new_Foto" accept="image/*">
         </div>
         <div class="form-group">
             <label for="new_NumMinimoPunti">NumMinimoPunti:</label>
             <input type="number" class="form-control" id="new_NumMinimoPunti" name="new_NumMinimoPunti" required>
         </div>
-        <button type="submit" class="btn btn-primary">Add Premio</button>
+        <button type="submit" class="btn btn-primary">Crea Premio</button>
     </form>
 </div>
 </body>
 </html>
+<style>
+    /* Custom CSS for Google-like login form */
+    body {
+        background-color: #f0f0f0;
+    }
+
+    .container {
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border-radius: 4px;
+    }
+
+    h2 {
+        text-align: center;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    .btn-primary {
+        background-color: #4285f4;
+        border-color: #4285f4;
+        width: 100%;
+        padding: 10px;
+    }
+
+    .btn-primary:hover {
+        background-color: #357ae8;
+        border-color: #357ae8;
+    }
+</style>

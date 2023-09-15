@@ -35,41 +35,47 @@ try {
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 </head>
 <body>
-<div class="list-container">
+<div class="container">
+    <!-- Header -->
     <h1 class="text-center">Medals List</h1>
-    <ul class="list-group">
-        <?php
-        // Iterate through the $RankingList
-        foreach ($RankingList as $index => $Ranking) {
-            $position = $index + 1;
-            $medalClass = "";
 
-            // Assign medals to the first, second, and third users
-            if ($position == 1) {
-                $medalClass = "gold-medal";
-            } elseif ($position == 2) {
-                $medalClass = "silver-medal";
-            } elseif ($position == 3) {
-                $medalClass = "bronze-medal";
+    <!-- Medals List Container -->
+    <div class="container">
+        <ul class="list-group">
+            <?php
+            // Iterate through the $RankingList
+            foreach ($RankingList as $index => $Ranking) {
+                $position = $index + 1;
+                $medalClass = "";
+
+                // Assign medals to the first, second, and third users
+                if ($position == 1) {
+                    $medalClass = "gold-medal";
+                } elseif ($position == 2) {
+                    $medalClass = "silver-medal";
+                } elseif ($position == 3) {
+                    $medalClass = "bronze-medal";
+                }
+
+                // Check if the current user is the logged-in user and add a star
+                $star = "";
+                if ($_SESSION['user']['idUtente'] == $Ranking['idUtente']) {
+                    $star = " &#9733;"; // Unicode star character
+                    // You can customize the star icon or use an image
+                }
+
+                echo '<li class="list-group-item list-item ' . ($_SESSION['user']['idUtente'] == $Ranking['idUtente'] ? "user-row" : "") . '">';
+                echo '<span class="position ' . $medalClass . '">Position: ' . $position . '</span>';
+                echo '<span class="name">' . $Ranking['nome'] . $star . '</span>';
+                echo '<span class="campo-totale">CampoTotale: ' . $Ranking['campoTotale'] . '</span>';
+                echo '</li>';
             }
-
-            // Check if the current user is the logged-in user and add a star
-            $star = "";
-            if ($_SESSION['user']['idUtente'] == $Ranking['idUtente']) {
-                $star = " &#9733;"; // Unicode star character
-                // You can customize the star icon or use an image
-            }
-
-            echo '<li class="list-group-item list-item ' . ($_SESSION['user']['idUtente'] == $Ranking['idUtente'] ? "user-row" : "") . '">';
-            echo '<span class="position ' . $medalClass . '">Position: ' . $position . '</span>';
-            echo '<span class="name">' . $Ranking['nome'] . $star . '</span>';
-            echo '<span class="campo-totale">CampoTotale: ' . $Ranking['campoTotale'] . '</span>';
-            echo '</li>';
-        }
-        ?>
-    </ul>
+            ?>
+        </ul>
+    </div>
 </div>
-<div class="container-flex">
+<div class="container">
+    <!-- Table Container -->
     <div class="table-responsive">
         <div class="table-wrapper">
             <div class="table-title">
@@ -93,6 +99,7 @@ try {
                 // Iterate through the $RankingList
                 foreach ($RankingList as $index => $Ranking) {
                     // Display the user's name and campoTotale
+                    echo '<tr>';
                     echo '<td>' . $Ranking['nome'] . '</td>';
                     echo '<td>' . $Ranking['campoTotale'] . '</td>';
                     if ($_SESSION['user']['idUtente'] == $Ranking['idUtente']) {
@@ -118,9 +125,13 @@ try {
         font-family: 'Open Sans', sans-serif;
     }
 
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
     .table-wrapper {
         width: 100%;
-        margin: 30px auto;
         background: #fff;
         padding: 20px;
         box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
@@ -134,76 +145,6 @@ try {
     .table-title h2 {
         margin: 6px 0 0;
         font-size: 22px;
-    }
-
-    .table-title .add-new {
-        float: right;
-        height: 30px;
-        font-weight: bold;
-        font-size: 12px;
-        text-shadow: none;
-        min-width: 100px;
-        border-radius: 50px;
-        line-height: 13px;
-    }
-
-    .table-title .add-new i {
-        margin-right: 4px;
-    }
-
-    table.table {
-        table-layout: fixed;
-    }
-
-    table.table tr th, table.table tr td {
-        border-color: #e9e9e9;
-    }
-
-    table.table th i {
-        font-size: 13px;
-        margin: 0 5px;
-        cursor: pointer;
-    }
-
-    table.table th:last-child {
-        width: 100px;
-    }
-
-    table.table td a {
-        cursor: pointer;
-        display: inline-block;
-        margin: 0 5px;
-        min-width: 24px;
-    }
-
-    table.table td a.edit {
-        color: #FFC107;
-    }
-
-    table.table td a.delete {
-        color: #E34724;
-    }
-
-    table.table td i {
-        font-size: 19px;
-    }
-
-
-    table.table .form-control {
-        height: 32px;
-        line-height: 32px;
-        box-shadow: none;
-        border-radius: 2px;
-    }
-
-    table.table .form-control.error {
-        border-color: #f50000;
-    }
-
-    /* Add custom styles for the list container */
-    .list-container {
-        max-width: 800px;
-        margin: 0 auto;
     }
 
     /* Add custom styles for list items */
