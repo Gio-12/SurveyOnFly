@@ -85,20 +85,20 @@ try {
                         }
                     }
                     ?>
-                    <tr>
-                        <td><?php echo $dominio['nome']; ?></td>
-                        <td><?php echo $dominio['descrizione']; ?></td>
-                        <td>
-                            <?php if ($isUserDomain) { ?>
-                                <!-- Show Remove button -->
-                                <a href="#" class="remove" title="Remove" data-toggle="tooltip"
-                                   data-action="remove"><i class="material-icons">&#xE872;</i></a>
-                            <?php } else { ?>
-                                <!-- Show Add button -->
-                                <a href="#" class="add" title="Add" data-toggle="tooltip"
-                                   data-action="add"><i class="material-icons">&#xE03B;</i></a>
-                            <?php } ?>
-                        </td>
+                    <tr data-domain-id="<?php echo $domainId; ?>" data-is-user-domain="<?php echo $isUserDomain ? 'true' : 'false'; ?>">
+                    <td><?php echo $dominio['nome']; ?></td>
+                    <td><?php echo $dominio['descrizione']; ?></td>
+                    <td>
+                        <?php if ($isUserDomain) { ?>
+                            <!-- Show Remove button -->
+                            <a href="#" class="action-link remove" title="Remove" data-toggle="tooltip"
+                               data-action="remove"><i class="material-icons">&#xE872;</i></a>
+                        <?php } else { ?>
+                            <!-- Show Add button -->
+                            <a href="#" class="action-link add" title="Add" data-toggle="tooltip"
+                               data-action="add"><i class="material-icons">&#xE03B;</i></a>
+                        <?php } ?>
+                    </td>
                     </tr>
                 <?php } ?>
                 </tbody>
@@ -108,6 +108,60 @@ try {
 </div>
 </body>
 </html>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        // Handle click on "Add" or "Remove" links
+        $(".action-link").click(function (e) {
+            e.preventDefault();
+
+            const domainRow = $(this).closest("tr");
+            const domainId = domainRow.data("domain-id");
+            const isUserDomain = domainRow.data("is-user-domain") === true;
+
+            // Define the PHP script URLs for adding and removing domains
+            const addDomainUrl = "dominio_addUtente.php"; // Replace with the actual URL
+            const removeDomainUrl = "dominio_remove.php"; // Replace with the actual URL
+
+            if ($(this).hasClass("add")) {
+                // User clicked "Add" button
+                $.ajax({
+                    type: "POST",
+                    url: addDomainUrl,
+                    data: {
+                        domainId: domainId,
+                    },
+                    success: function (response) {
+                        alert(response); // Show success message
+                        // Update the DOM or perform other actions as needed
+                        location.reload();
+                    },
+                    error: function (xhr, status, error) {
+                        alert("Error: " + error); // Handle the error
+                    },
+                });
+            } else if ($(this).hasClass("remove")) {
+                // User clicked "Remove" button
+                $.ajax({
+                    type: "POST",
+                    url: removeDomainUrl,
+                    data: {
+                        domainId: domainId,
+                    },
+                    success: function (response) {
+                        alert(response); // Show success message
+                        // Update the DOM or perform other actions as needed
+                        location.reload();
+                    },
+                    error: function (xhr, status, error) {
+                        alert("Error: " + error); // Handle the error
+                    },
+                });
+            }
+        });
+    });
+</script>
 <style>
     body {
         text-align: center;
