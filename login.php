@@ -29,6 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($utentebase_id !== null && $utentebase_id !== 0) {
                 // Store relevant user information in the session
                 $_SESSION['user'] = [
+                        'logged' => true,
                     'idUtente' => $utentebase_id,
                     'email' => $utentebase_email,
                     'tipologiaUtente' => $utentebase_tipologiaUtente,

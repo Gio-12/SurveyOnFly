@@ -1,6 +1,11 @@
 <?php
 global $pdo;
 session_start();
+if (!isset($_SESSION['user'])) {
+    // Redirect the user to the login page or any other desired page
+    header("Location: login.php"); // Change "login.php" to the desired page
+    exit(); // Ensure script execution stops here
+}
 // Include your database connection script
 include "db/connect.php";
 

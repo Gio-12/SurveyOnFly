@@ -3,18 +3,15 @@ global $pdo;
 session_start();
 include "db/connect.php";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $userType = $_POST["tipologiaUtente"];
-
-// Common fields
 
     $email = $_POST["email"];
     $password = $_POST["password"];
     $tipologiaUtente = $_POST["tipologiaUtente"];
 
 // Specific fields for Azienda
-    if ($userType === "Azienda") {
+    if ($tipologiaUtente === "Azienda") {
         $codiceFiscale = $_POST["codiceFiscale"];
-        $nome = $_POST["nome"];
+        $nomeAzienda = $_POST["nomeAzienda"];
         $sede = $_POST["sede"];
         $indirizzo = $_POST["indirizzo"];
 
@@ -26,7 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bindParam(2, $password, PDO::PARAM_STR);
         $stmt->bindParam(3, $tipologiaUtente, PDO::PARAM_STR);
         $stmt->bindParam(4, $codiceFiscale, PDO::PARAM_STR);
-        $stmt->bindParam(5, $nome, PDO::PARAM_STR);
+        $stmt->bindParam(5, $nomeAzienda, PDO::PARAM_STR);
         $stmt->bindParam(6, $sede, PDO::PARAM_STR);
         $stmt->bindParam(7, $indirizzo, PDO::PARAM_STR);
 
@@ -46,13 +43,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
 // Now, based on $userType, you can process the form accordingly
-    if ($userType === "Utente") {
+    if ($tipologiaUtente === "Utente") {
         $nome = $_POST["nome"];
         $cognome = $_POST["cognome"];
         $luogoNascita = $_POST["luogoNascita"];
         $annoNascita = $_POST["annoNascita"];
-        $tipologia = $_POST["tipologia"];
         $tipoAbbonamento = $_POST["tipoAbbonamento"];
+
+        if ($tipoAbbonamento == 0) {
+            $tipologia = "Semplice";
+        } else {
+            $tipologia = "Premium";
+        }
 
         $sql = "CALL registrazioneUtente(?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $pdo->prepare($sql);
@@ -134,13 +136,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <label for="annoNascita">Date of Birth:</label>
             <input type="date" name="annoNascita" class="form-control" required>
 
-            <label for="tipologia">User Role:</label>
-            <select name="tipologia" required class="form-control">
-                <option value="Semplice">Semplice</option>
-                <option value="Premium">Premium</option>
-                <option value="Amministratore">Amministratore</option>
-            </select>
-
             <label for="tipoAbbonamento">Subscription Type:</label>
             <select name="tipoAbbonamento" required class="form-control">
                 <option value="0">0</option>
@@ -155,8 +150,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <label for="codiceFiscale">Tax Code:</label>
             <input type="text" name="codiceFiscale" class="form-control" required>
 
-            <label for="nome">Name:</label>
-            <input type="text" name="nome" class="form-control" required>
+            <label for="nomeAzienda">Name:</label>
+            <input type="text" name="nomeAzienda" class="form-control" required>
 
             <label for="sede">Location:</label>
             <input type="text" name="sede" class="form-control" required>
