@@ -1,6 +1,11 @@
 <?php
 global $pdo;
 session_start();
+if (!isset($_SESSION['user'])) {
+    // Redirect the user to the login page or any other desired page
+    header("Location: login.php"); // Change "login.php" to the desired page
+    exit(); // Ensure script execution stops here
+}
 include "db/connect.php"; // Include your database connection script
 try {
     // Prepare the call to the stored procedure to get the list of all prizes
@@ -73,7 +78,6 @@ try {
                     <th>Descrizione</th>
                     <th>Foto</th>
                     <th>NumMinimoPunti</th>
-                    <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -83,12 +87,6 @@ try {
                         <td><?php echo $premio['descrizione']; ?></td>
                         <td><?php echo $premio['foto']; ?></td>
                         <td><?php echo $premio['numMinimoPunti']; ?></td>
-                        <td>
-<!--                            --><?php //if ($_SESSION['user']['tipologia'] === 'Amministratore') { ?>
-<!--                            <a href="premio_edit.php?id=--><?php //echo $premio['id']; ?><!--" class="edit" title="Edit" data-toggle="tooltip" data-action="edit"><i class="material-icons">&#xE254;</i></a>-->
-<!--                            <a href="#" class="delete" title="Delete" data-toggle="tooltip" data-action="delete"><i class="material-icons">&#xE872;</i></a>-->
-<!--                            --><?php //} ?>
-                        </td>
                     </tr>
                 <?php } ?>
                 </tbody>

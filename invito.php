@@ -1,10 +1,29 @@
 <?php
 session_start();
+if (!isset($_SESSION['user'])) {
+    // Redirect the user to the login page or any other desired page
+    header("Location: login.php"); // Change "login.php" to the desired page
+    exit(); // Ensure script execution stops here
+}
 global $pdo;
 include "db/connect.php"; // Include your database connection script
 
 try {
     $userId = $_SESSION['user']['idUtente'];
+    $userType = $_SESSION['user']['tipologia'];
+
+     if ($userType == 'Premium' || $userType == 'Amministratore') {
+
+         $sqlSentInvitations = "CALL getListaInvitoMittente(?)";
+
+         $stmtSentInvitations = $pdo->prepare($sqlSentInvitations);
+         $stmtSentInvitations->bindParam(1, $userId, PDO::PARAM_INT);
+         $stmtSentInvitations->execute();
+         $sentInvitations = $stmtSentInvitations->fetchAll(PDO::FETCH_ASSOC);
+
+         $stmtSentInvitations->closeCursor();
+     }
+
 
     // Call the stored procedure to fetch invitations
     $sqlInvitations = "CALL getListaInvitoRicevente(?)";
@@ -35,7 +54,7 @@ try {
 </head>
 <body>
 <div class="container">
-    <h2>Invitations</h2>
+    <h2>Inviti ricevuti</h2>
     <table class="table table-bordered">
         <thead>
         <tr>
@@ -55,6 +74,33 @@ try {
                         <button class="btn btn-danger reject-invitation" data-invitation-id="<?php echo $invitation['codice']; ?>">Rifiuta</button>
                     <?php } else { ?>
                         <?php echo $invitation['esito']; ?>
+                    <?php } ?>
+                </td>
+            </tr>
+        <?php } ?>
+        </tbody>
+    </table>
+</div>
+<div class="container">
+    <h2>Inviti mandati</h2>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>Sondaggio</th>
+            <th>Mittente</th>
+            <th>Stato</th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($sentInvitations as $sentInvitation) { ?>
+            <tr>
+                <td><?php echo $sentInvitation['sondaggio_nome']; ?></td>
+                <td><?php echo $sentInvitation['mittente_email']; ?></td>
+                <td>
+                    <?php if ($sentInvitation['hasValue'] == 0) { ?>
+                        sconosciuto;
+                    <?php } else { ?>
+                        <?php echo $sentInvitation['esito']; ?>
                     <?php } ?>
                 </td>
             </tr>
