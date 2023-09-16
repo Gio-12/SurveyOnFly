@@ -64,6 +64,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
 </head>
 <body>
+
+<?php include 'includes/header.php'; ?>
+
 <div class="container">
     <h2>Crea nuovo premio</h2>
     <form action="premio_add.php" method="POST" enctype="multipart/form-data">

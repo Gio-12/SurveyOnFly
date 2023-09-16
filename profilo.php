@@ -66,6 +66,7 @@ $pdo = null;
 </head>
 
 <body>
+<?php include 'includes/header.php'; ?>
 <div class="container mt-5">
     <h1 style="color: #4285f4;">Gestione Utente</h1>
     <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
