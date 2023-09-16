@@ -49,7 +49,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $message = $output['@message'];
 
             if ($insertedSondaggioId > 0) {
-                echo '<script>alert("Sondaggio created successfully. ID: ' . $insertedSondaggioId . '");</script>';
+                echo '<script>alert("Sondaggio created successfully. ID: ' . $insertedSondaggioId . '");                
+    setTimeout(function() {
+                    window.location.href = "sondaggio.php";
+                }, 3000)</script>';
+
             } else {
                 // Handle errors here, e.g., display an error message
                 echo '<script>alert("Failed to create sondaggio. Message: ' . $message . '");</script>';
@@ -79,6 +83,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
+<?php include 'includes/header.php'; ?>
 <div class="container mt-5">
     <h1>Creazione di un Nuovo Sondaggio</h1>
     <form method="POST" id="campiSondaggio">

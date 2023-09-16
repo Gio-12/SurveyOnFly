@@ -40,6 +40,7 @@ try {
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 </head>
 <body>
+<?php include 'includes/header.php'; ?>
 <div class="container">
     <!-- Header -->
     <h1 class="text-center">Medals List</h1>

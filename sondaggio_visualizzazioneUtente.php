@@ -2,7 +2,7 @@
 session_start();
 include "db/connect.php"; // Include your database connection script
 global $pdo;
-global $surveyId;
+global $surveyId; // Make sure to set the $surveyId based on your requirements
 
 if (isset($_GET['SondaggioId'])) {
     $surveyId = ($_GET['SondaggioId']);
@@ -10,12 +10,11 @@ if (isset($_GET['SondaggioId'])) {
     // If the survey exists, display its details
     // Otherwise, show an error message like "Sondaggio not found"
 } else {
-    echo "Invalid request: Missing 'id' parameter";
+    echo "Invalid request: Missing 'SondaggioId' parameter";
 }
+
 // Call the stored procedure to retrieve survey details
-
 $selected_idSondaggio = (int)$surveyId;
-
 $sqlGetSondaggio = "CALL getSondaggioSingolo(?)";
 
 try {
@@ -67,7 +66,7 @@ try {
 
 <head>
     <meta charset="utf-8">
-    <title>Gestione Creazione Sondaggio</title>
+    <title>Sondaggio Visualizzazione</title>
     <!-- Include Bootstrap libraries -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 </head>
@@ -75,7 +74,7 @@ try {
 <body>
 <?php include 'includes/header.php'; ?>
 <div class="container mt-5">
-    <h1>Gestione Creazione Sondaggio</h1>
+    <h1>Sondaggio Visualizzazione</h1>
     <button onclick="goBack()">Torna Indietro</button>
 
     <script>
@@ -99,35 +98,63 @@ try {
         <table class="table">
             <thead>
             <tr>
-<!--                <th>ID Domanda</th>-->
                 <th>Testo Domanda</th>
                 <th>Foto</th>
                 <th>Punteggio</th>
                 <th>Lunghezza Massima</th>
                 <th>Tipologia</th>
+                <th>Risposta Utente</th>
             </tr>
             </thead>
             <tbody>
             <?php foreach ($domande as $domanda) { ?>
                 <tr>
-<!--                    <td>--><?php //echo $domanda['domanda_id']; ?><!--</td>-->
                     <td><?php echo $domanda['domanda_testo']; ?></td>
                     <td><?php echo $domanda['domanda_foto']; ?></td>
                     <td><?php echo $domanda['domanda_punteggio']; ?></td>
                     <td><?php echo $domanda['domanda_lunghezzaMax']; ?></td>
                     <td><?php echo $domanda['domanda_tipologia']; ?></td>
+                    <td>
+                        <?php
+                        // Call the stored procedures to get user answers
+                        $domandaId = $domanda['domanda_id'];
+                        $userId = $_SESSION['user']['idUtente'];
+                        $sqlGetRispostaChiusa = "CALL getRipostaChiusaUtente(?, ?)";
+                        $sqlGetRispostaAperta = "CALL getRipostaApertaUtente(?, ?)";
+
+                        try {
+                            // Check the question type
+                            if ($domanda['domanda_tipologia'] === 'Chiusa') {
+                                $stmtGetRisposta = $pdo->prepare($sqlGetRispostaChiusa);
+                            } else {
+                                $stmtGetRisposta = $pdo->prepare($sqlGetRispostaAperta);
+                            }
+
+                            $stmtGetRisposta->bindParam(1, $userId, PDO::PARAM_INT);
+                            $stmtGetRisposta->bindParam(2, $domandaId, PDO::PARAM_INT);
+                            $stmtGetRisposta->execute();
+
+                            $risposta = $stmtGetRisposta->fetch(PDO::FETCH_ASSOC);
+
+                            if ($risposta) {
+                                // Display user answer
+                                echo $risposta['risposta'];
+                            } else {
+                                // Display a message indicating no answer
+                                echo "Nessuna risposta data.";
+                            }
+
+                            $stmtGetRisposta -> closeCursor();
+                        } catch (PDOException $e) {
+                            echo "Error fetching user answers: " . $e->getMessage();
+                        }
+                        ?>
+                    </td>
                 </tr>
             <?php } ?>
             </tbody>
         </table>
     </div>
-
-    <a href="sondaggio_addDomanda.php?SondaggioId=<?php echo $surveyId; ?>" class="btn btn-primary">Aggiungi Domanda</a>
-
-    <form method="POST" action="sondaggio_attivazione.php">
-        <input type="hidden" name="survey_id" value="<?php echo $surveyId; ?>">
-        <button type="submit" class="btn btn-success">Attiva Sondaggio</button>
-    </form>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>

@@ -53,6 +53,7 @@ try {
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 </head>
 <body>
+<?php include 'includes/header.php'; ?>
 <div class="container">
     <h2>Sondaggi Partecipati</h2>
     <table class="table table-bordered">
@@ -86,7 +87,9 @@ try {
                     <?php
                     if ($survey['stato'] !== 'Chiuso' && $survey['stato'] !== '1') {
                         // Display a button linked to the survey_partecipazione page
-                        echo '<a href="sondaggio_partecipazione.php?survey_id=' . $survey['id'] . '" class="btn btn-primary">Avvia</a>';
+                        echo '<a href="sondaggio_partecipazione.php?SondaggioId=' . $survey['id'] . '" class="btn btn-primary">Avvia</a>';
+                    } else {
+                        echo '<a href="sondaggio_visualizzazioneUtente.php?SondaggioId=' . $survey['id'] . '" class="btn btn-primary">Visualizza</a>';
                     }
                     ?>
                 </td>
@@ -133,10 +136,10 @@ if ($userType === 'Premium' || $userType === 'Azienda' || $userType === 'Amminis
                         <?php
                         if ($survey['stato'] === 'Creazione') {
                             // Display a button linked to sondaggio_creazione.php
-                            echo '<a href="sondaggio_gestioneCreazione.php?survey_id=' . $survey['id'] . '" class="btn btn-primary">Procedura Creazione</a>';
-                        } elseif ($survey['stato'] === 'Attivo' || $survey['stato'] === 'Chiuso') {
+                            echo '<a href="sondaggio_gestioneCreazione.php?SondaggioId=' . $survey['id'] . '" class="btn btn-primary">Procedura Creazione</a>';
+                        } elseif ($survey['stato'] === 'Aperto' || $survey['stato'] === 'Chiuso') {
                             // Display a button linked to sondaggio_visualizzazione.php
-                            echo '<a href="sondaggio_visualizzazione.php?survey_id=' . $survey['id'] . '" class="btn btn-success">Visualizza</a>';
+                            echo '<a href="sondaggio_visualizzazione.php?SondaggioId=' . $survey['id'] . '" class="btn btn-success">Visualizza</a>';
                         }
                         ?>
                     </td>

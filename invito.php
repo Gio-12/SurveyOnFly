@@ -53,6 +53,7 @@ try {
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 </head>
 <body>
+<?php include 'includes/header.php'; ?>
 <div class="container">
     <h2>Inviti ricevuti</h2>
     <table class="table table-bordered">
@@ -67,7 +68,7 @@ try {
         <?php foreach ($invitations as $invitation) { ?>
             <tr>
                 <td><?php echo $invitation['sondaggio_nome']; ?></td>
-                <td><?php echo $invitation['destinatario_email']; ?></td>
+                <td><?php echo $invitation['mittente_email']; ?></td>
                 <td>
                     <?php if ($invitation['hasValue'] == 0) { ?>
                         <button class="btn btn-success accept-invitation" data-invitation-id="<?php echo $invitation['codice']; ?>">Accetta</button>
@@ -83,6 +84,13 @@ try {
 </div>
 <div class="container">
     <h2>Inviti mandati</h2>
+    <div class="col-sm-4">
+        <!--                        --><?php //if ($_SESSION['user']['tipologia'] === 'Premium') { ?>
+        <a href="invito_creazione.php" type="button" class="btn btn-info add-new"><i class="fa fa-plus"></i> Crea Invito</a>
+        <!--                        --><?php //} else {
+        //                            echo '<td></td>';
+        //                        }?>
+    </div>
     <table class="table table-bordered">
         <thead>
         <tr>

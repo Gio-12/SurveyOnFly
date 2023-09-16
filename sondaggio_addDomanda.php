@@ -1,22 +1,24 @@
 <?php
 session_start();
+
+global $pdo;
+global $sondaggio_id;
+
 //if (!isset($_SESSION['user'])) {
 //    // Redirect the user to the login page or any other desired page
 //    header("Location: login.php"); // Change "login.php" to the desired page
 //    exit(); // Ensure script execution stops here
 //}
-//if (isset($_GET['insertedSondaggioId'])) {
-//    // Retrieve the 'insertedSondaggioId' from the URL
-//    $insertedSondaggioId = $_GET['insertedSondaggioId'];
-//
-//    // Now, you can use $insertedSondaggioId in your code as needed
-//} else {
-//    // Handle the case where 'insertedSondaggioId' is not set in the URL
-//    echo "No 'insertedSondaggioId' parameter found in the URL.";
-//}
+if (isset($_GET['SondaggioId'])) {
+    // Retrieve the 'insertedSondaggioId' from the URL
+    $sondaggio_id = $_GET['SondaggioId'];
+    $sondaggio_id = (int)$sondaggio_id;
+    // Now, you can use $insertedSondaggioId in your code as needed
+} else {
+    // Handle the case where 'insertedSondaggioId' is not set in the URL
+    echo "No 'insertedSondaggioId' parameter found in the URL.";
+}
 
-global $pdo;
-$sondaggio_id = 5;
 include "db/connect.php"; // Include your database connection script
 
 $options = array();
@@ -108,9 +110,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 </head>
 <body>
+<?php include 'includes/header.php'; ?>
 <div class="container mt-5">
     <h1>Aggiungi Domanda al sondaggio</h1>
+    <button onclick="goBack()">Torna Indietro</button>
 
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+    </script>
     <!-- Form for adding questions -->
     <form id="addDomandaForm" method="POST" enctype="multipart/form-data">
         <div class="mb-3">
