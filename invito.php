@@ -54,6 +54,7 @@ try {
 </head>
 <body>
 <?php include 'includes/header.php'; ?>
+<?php if ($userType != 'Azienda') { ?>
 <div class="container">
     <h2>Inviti ricevuti</h2>
     <table class="table table-bordered">
@@ -82,14 +83,13 @@ try {
         </tbody>
     </table>
 </div>
+<?php } ?>
+<?php
+if ($userType == 'Premium') { ?>
 <div class="container">
     <h2>Inviti mandati</h2>
     <div class="col-sm-4">
-        <!--                        --><?php //if ($_SESSION['user']['tipologia'] === 'Premium') { ?>
         <a href="invito_creazione.php" type="button" class="btn btn-info add-new"><i class="fa fa-plus"></i> Crea Invito</a>
-        <!--                        --><?php //} else {
-        //                            echo '<td></td>';
-        //                        }?>
     </div>
     <table class="table table-bordered">
         <thead>
@@ -106,7 +106,7 @@ try {
                 <td><?php echo $sentInvitation['destinatario_email']; ?></td>
                 <td>
                     <?php if ($sentInvitation['hasValue'] == 0) { ?>
-                        sconosciuto;
+                        sconosciuto
                     <?php } else { ?>
                         <?php echo $sentInvitation['esito']; ?>
                     <?php } ?>
@@ -116,6 +116,7 @@ try {
         </tbody>
     </table>
 </div>
+<?php } ?>
 </body>
 </html>
 <script>
