@@ -46,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Call your SQL procedure here to add the question to the database
-    $sql = "CALL DONEinserimentoDomanda(?, ?, ?, ?, ?, ?, ?, @p_idDomanda)";
+    $sql = "CALL inserimentoDomanda(?, ?, ?, ?, ?, ?, ?, @p_idDomanda)";
     $stmt = $pdo->prepare($sql);
 
     // Bind parameters
@@ -74,7 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // Call the procedure to insert options for "Chiusa" type question
             foreach ($options as $option) {
-                $sql2 = "CALL DONEinserimentoOpzione(?, ?)";
+                $sql2 = "CALL inserimentoOpzione(?, ?)";
                 $stmt = $pdo->prepare($sql2);
                 $stmt->bindParam(1, $domandaId, PDO::PARAM_INT);
                 $stmt->bindParam(2, $option, PDO::PARAM_STR);
