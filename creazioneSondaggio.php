@@ -7,6 +7,7 @@ session_start();
 //}
 
 global $pdo;
+$sondaggioCreated = false;
 include "db/connect.php"; // Include your database connection script
 
 $query = "CALL getListaDominio()";
@@ -48,19 +49,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $message = $output['@message'];
 
             if ($insertedSondaggioId > 0) {
-                // Sondaggio created successfully, and $insertedSondaggioId contains the ID
-                echo "Sondaggio created successfully. ID: " . $insertedSondaggioId;
+                $sondaggioCreated = true;
+                echo '<script>alert("Sondaggio created successfully. ID: ' . $insertedSondaggioId . '");</script>';
             } else {
                 // Handle errors here, e.g., display an error message
-                echo "Failed to create sondaggio. Message: " . $message;
+                echo '<script>alert("Failed to create sondaggio. Message: ' . $message . '");</script>';
             }
         } else {
             // Handle database error
-            echo "Error fetching output variables.";
+            echo '<script>alert("Error fetching output variables.");</script>';
         }
     } else {
         // Handle database error
-        echo "Error executing stored procedure.";
+        echo '<script>alert("Error executing stored procedure.");</script>';
     }
 }
 ?>
@@ -137,7 +138,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
         <button type="submit" class="btn btn-success">Crea Sondaggio</button>
     </form>
-
 </div>
 <script>
     // Funzione per mostrare/nascondere i campi per la creazione di un nuovo sondaggio
@@ -157,10 +157,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Gestisci il click sul pulsante "Crea Nuovo Sondaggio"
     const espandiCampiBtn = document.getElementById('espandiCampiBtn');
     espandiCampiBtn.addEventListener('click', toggleCampiSondaggio);
-
+    //function redirectToSondaggioAddDomanda() {
+    //    // Get the value of $insertedSondaggioId
+    //    const insertedSondaggioId = <?php //echo $insertedSondaggioId; ?>//;
+    //
+    //    // Redirect to sondaggio_addDomanda.php with the ID as a parameter
+    //    window.location.href = `sondaggio_addDomanda.php?idSondaggio=${insertedSondaggioId}`;
+    //}
+    //
+    //// Call the redirection function after 3 seconds (3000 milliseconds)
+    //setTimeout(redirectToSondaggioAddDomanda, 3000);
 </script>
 
-<!-- Includi le librerie Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 </body>
 

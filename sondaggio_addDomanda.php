@@ -46,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Call your SQL procedure here to add the question to the database
-    $sql = "CALL DONEinserimentoDomanda(?, ?, ?, ?, ?, ?, ?)";
+    $sql = "CALL DONEinserimentoDomanda(?, ?, ?, ?, ?, ?, ?, @p_idDomanda)";
     $stmt = $pdo->prepare($sql);
 
     // Bind parameters
@@ -62,30 +62,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($stmt->execute()) {
         // Domanda added successfully, you can display a success message if needed
+        $stmt->closeCursor();
+
+        $outputStmt = $pdo->query("SELECT @p_idDomanda");
+        $output = $outputStmt->fetch(PDO::FETCH_ASSOC);
+        $domandaId = (int)$output['@p_idDomanda'];
 
         // Check if the question type is "Chiusa" and options are provided
         if ($tipologia === 'Chiusa' && !empty($options)) {
             // Insert the options for the added question
-            $domandaId = $pdo->lastInsertId(); // Get the ID of the added question
 
             // Call the procedure to insert options for "Chiusa" type question
             foreach ($options as $option) {
-                $sql = "CALL DONEinserimentoOpzione(?, ?)";
-                $stmt = $pdo->prepare($sql);
+                $sql2 = "CALL DONEinserimentoOpzione(?, ?)";
+                $stmt = $pdo->prepare($sql2);
                 $stmt->bindParam(1, $domandaId, PDO::PARAM_INT);
                 $stmt->bindParam(2, $option, PDO::PARAM_STR);
 
                 if ($stmt->execute()) {
-                    // Option inserted successfully
                 } else {
                     // Handle error if option insertion fails
-                    echo "Error inserting option.";
+                    echo '<script>alert("Error fetching output variables.");</script>';
                 }
+                $stmt->closeCursor();
             }
         }
+        echo '<script>alert("Domanda Inserita");</script>';
     } else {
         // Handle database error, you can display an error message if needed
-        echo "Error executing stored procedure.";
+        echo '<script>alert("Error fetching output variables.");</script>';
     }
 }
 ?>

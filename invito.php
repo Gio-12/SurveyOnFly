@@ -67,7 +67,7 @@ try {
         <?php foreach ($invitations as $invitation) { ?>
             <tr>
                 <td><?php echo $invitation['sondaggio_nome']; ?></td>
-                <td><?php echo $invitation['mittente_email']; ?></td>
+                <td><?php echo $invitation['destinatario_email']; ?></td>
                 <td>
                     <?php if ($invitation['hasValue'] == 0) { ?>
                         <button class="btn btn-success accept-invitation" data-invitation-id="<?php echo $invitation['codice']; ?>">Accetta</button>
@@ -95,7 +95,7 @@ try {
         <?php foreach ($sentInvitations as $sentInvitation) { ?>
             <tr>
                 <td><?php echo $sentInvitation['sondaggio_nome']; ?></td>
-                <td><?php echo $sentInvitation['mittente_email']; ?></td>
+                <td><?php echo $sentInvitation['destinatario_email']; ?></td>
                 <td>
                     <?php if ($sentInvitation['hasValue'] == 0) { ?>
                         sconosciuto;
