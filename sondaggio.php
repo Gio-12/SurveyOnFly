@@ -85,7 +85,7 @@ try {
                 <td><?php echo $survey['completato']; ?></td>
                 <td>
                     <?php
-                    if ($survey['stato'] !== 'Chiuso' && $survey['stato'] !== '1') {
+                    if ($survey['stato'] === 'Aperto' && $survey['completato'] !== 1) {
                         // Display a button linked to the survey_partecipazione page
                         echo '<a href="sondaggio_partecipazione.php?SondaggioId=' . $survey['id'] . '" class="btn btn-primary">Avvia</a>';
                     } else {

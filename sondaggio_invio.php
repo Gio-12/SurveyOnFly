@@ -10,6 +10,8 @@ if (!isset($_SESSION['user'])) {
     exit();
 }
 
+$selected_idSondaggio = $_POST['sondaggio_id'] ?? null;
+
 // Check if the form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
@@ -54,6 +56,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 $stmt->closeCursor();
             }
+        }
+        try {
+            $userId = $_SESSION['user']['idUtente'];
+            $sondaggioId = $selected_idSondaggio; // Assuming you have this variable from your code
+
+            // Prepare the call to the stored procedure
+            $sqlSondaggioCompletato = "CALL sondaggioCompletato(:userId, :sondaggioId)";
+            $stmtSondaggioCompletato = $pdo->prepare($sqlSondaggioCompletato);
+
+            // Bind the parameters
+            $stmtSondaggioCompletato->bindParam(':userId', $userId, PDO::PARAM_INT);
+            $stmtSondaggioCompletato->bindParam(':sondaggioId', $sondaggioId, PDO::PARAM_INT);
+
+            // Execute the stored procedure
+            $stmtSondaggioCompletato->execute();
+        } catch (PDOException $e) {
+            echo "Error calling sondaggioCompletato stored procedure: " . $e->getMessage();
+            exit();
         }
 
         // Redirect the user to a confirmation page after successful submission

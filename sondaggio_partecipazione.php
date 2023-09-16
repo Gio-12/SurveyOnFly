@@ -100,6 +100,7 @@ try {
     <div class="mb-3">
         <h2>Domande del Sondaggio</h2>
         <form method="post" action="sondaggio_invio.php">
+            <input type="hidden" name="sondaggio_id" value="<?php echo $selected_idSondaggio; ?>">
             <?php foreach ($domande as $domanda) { ?>
                 <div class="mb-3">
                     <label for="domanda_<?php echo $domanda['domanda_id']; ?>"><?php echo $domanda['domanda_testo']; ?></label>

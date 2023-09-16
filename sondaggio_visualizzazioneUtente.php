@@ -138,7 +138,13 @@ try {
 
                             if ($risposta) {
                                 // Display user answer
-                                echo $risposta['risposta'];
+                                if ($domanda['domanda_tipologia'] === 'Chiusa') {
+                                    // Display idOpzione for "Chiusa" questions
+                                    echo "ID Opzione: " . $risposta['idOpzione'];
+                                } else {
+                                    // Display user answer for "Aperta" questions
+                                    echo $risposta['testoRisposta'];
+                                }
                             } else {
                                 // Display a message indicating no answer
                                 echo "Nessuna risposta data.";
