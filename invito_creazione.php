@@ -1,13 +1,18 @@
 <?php
 global $pdo;
 session_start();
-// Include your database connection script
+
+if (!$_SESSION['user']['tipologiaUtente'] === 'Premium') {
+    header("Location: error.php");
+    exit();
+}
+
 include "db/connect.php";
 ?>
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <!-- Add your meta tags, stylesheets, and scripts here -->
     <title>Crea Invito</title>
 </head>
 <body>
@@ -18,16 +23,15 @@ include "db/connect.php";
         <div class="form-group">
             <label for="recipient">Seleziona il destinatario:</label>
             <select class="form-control" id="recipient" name="idRicevente">
-                <!-- Populate this dropdown with users from the database -->
+
                 <?php
-                // Fetch the list of users (excluding Azienda)
                 $sqlGetUtentiFisici = "CALL getListaUtentiFisici()";
                 $stmtGetUtentiFisici = $pdo->prepare($sqlGetUtentiFisici);
                 $stmtGetUtentiFisici->execute();
                 $users = $stmtGetUtentiFisici->fetchAll(PDO::FETCH_ASSOC);
 
                 foreach ($users as $user) {
-                    // Check if the user's ID is not the same as the session user's ID
+
                     if ($user['id'] != $_SESSION['user']['idUtente']) {
                         echo "<option value=\"{$user['id']}\">{$user['email']}</option>";
                     }
@@ -39,11 +43,11 @@ include "db/connect.php";
         <div class="form-group">
             <label for="survey">Seleziona il sondaggio:</label>
             <select class="form-control" id="survey" name="idSondaggio">
-                <!-- Populate this dropdown with surveys from the database -->
+
                 <?php
                 $userId = $_SESSION['user']['idUtente'];
                 $userId = (int)$userId;
-                // Fetch the list of open surveys created by the user
+
                 $sqlGetSondaggiCreatore = "CALL getListaSondaggioCreatore(?)";
                 $stmtGetSondaggiCreatore = $pdo->prepare($sqlGetSondaggiCreatore);
                 $stmtGetSondaggiCreatore->bindParam(1, $userId, PDO::PARAM_INT);
@@ -65,3 +69,44 @@ include "db/connect.php";
 </div>
 </body>
 </html>
+<style>
+    body {
+        background-color: #f5f5f5;
+        font-family: Arial, sans-serif;
+    }
+
+    .container {
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-top: 20px;
+    }
+
+    h2 {
+        margin-bottom: 20px;
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    select.form-control,
+    input.form-control {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    button.btn-primary {
+        background-color: #222222;
+        color: #fff;
+        border: none;
+    }
+
+    button.btn-primary:hover {
+        background-color: #0056b3;
+    }
+</style>

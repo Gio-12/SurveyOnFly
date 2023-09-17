@@ -1,7 +1,6 @@
 <?php
-
 session_start();
-include "db/connect.php"; // Include your database connection script
+include "db/connect.php";
 global $pdo;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -9,7 +8,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $idRicevente = $_POST['idRicevente'];
     $idSondaggio = $_POST['idSondaggio'];
 
-    // Call the stored procedure to create the invitation
     $sqlCreateInvito = "CALL creazioneInvito(:idMittente, :idRicevente, :idSondaggio)";
 
     try {
@@ -20,24 +18,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $stmtCreateInvito->execute();
 
-        // Check if the stored procedure returns a message
         $result = $stmtCreateInvito->fetch(PDO::FETCH_ASSOC);
         if (isset($result['Message'])) {
-            // Handle the message, e.g., show an error message using JavaScript alert
+
             echo "<script>alert('Error: " . $result['Message'] . "');</script>";
         } else {
-            // Invitation created successfully, redirect using JavaScript
-            echo "<script>alert('Invitation created successfully.'); window.location.href = 'invito_creazione.php';</script>";
+
+            echo "<script>alert('Invio inviato!'); window.location.href = 'invito_creazione.php';</script>";
         }
         $stmtCreateInvito->closeCursor();
     } catch (PDOException $e) {
-        // Handle database errors by displaying an alert and redirecting
+
         echo "<script>alert('Database Error: " . $e->getMessage() . "');</script>";
         echo "<script>window.location.href = 'invito_creazione.php';</script>";
     }
     $stmtCreateInvito -> closeCursor();
 } else {
-    // Redirect the user to the create invitation page if accessed directly
+
     header("Location: invito_creazione.php");
     exit();
 }

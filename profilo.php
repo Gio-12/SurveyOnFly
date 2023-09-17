@@ -2,13 +2,11 @@
 global $pdo;
 session_start();
 if (!isset($_SESSION['user'])) {
-    // Redirect the user to the login page or any other desired page
-    header("Location: login.php"); // Change "login.php" to the desired page
-    exit(); // Ensure script execution stops here
+    header("Location: login.php");
+    exit();
 }
-include "db/connect.php"; // Includi lo script di connessione al database
+include "db/connect.php";
 
-// Function to get Utente user information
 function getUtenteInfo($userId) {
     global $pdo;
     try {
@@ -25,7 +23,6 @@ function getUtenteInfo($userId) {
     return null;
 }
 
-// Function to get Azienda user information
 function getAziendaInfo($userId) {
     global $pdo;
     try {
@@ -53,12 +50,9 @@ if ($userType === 'Utente') {
     echo "Invalid user type";
     exit();
 }
-
-// Close the database connection
-$pdo = null;
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="it">
 
 <head>
     <title>Gestione Utente</title>
@@ -68,9 +62,9 @@ $pdo = null;
 <body>
 <?php include 'includes/header.php'; ?>
 <div class="container mt-5">
-    <h1 style="color: #4285f4;">Gestione Utente</h1>
+    <h1>Gestione Utente</h1>
     <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
-        <!-- Common Fields -->
+
         <div class="mb-3 row">
             <label for="inputEmail" class="col-sm-2 col-form-label">Email</label>
             <div class="col-sm-10">
@@ -86,7 +80,6 @@ $pdo = null;
             </div>
         </div>
 
-        <!-- Utente-Specific Fields -->
         <?php if ($userType === 'Utente') { ?>
             <div class="mb-3 row">
                 <label for="inputNome" class="col-sm-2 col-form-label">Nome</label>
@@ -116,9 +109,6 @@ $pdo = null;
                            value="<?php echo $userInfo['userAnnoNascita']; ?>" readonly>
                 </div>
             </div>
-
-            <!-- Add more Utente-specific fields here -->
-
         <?php } ?>
 
         <!-- Azienda-Specific Fields -->
@@ -145,11 +135,8 @@ $pdo = null;
                 </div>
             </div>
 
-            <!-- Add more Azienda-specific fields here -->
-
         <?php } ?>
 
-        <!-- Common Fields (Continued) -->
         <div class="mb-3 row">
             <label for="inputTipologia" class="col-sm-2 col-form-label">Tipologia</label>
             <div class="col-sm-10">
@@ -172,7 +159,6 @@ $pdo = null;
             </div>
         </div>
 
-        <!-- Premium Fields -->
         <?php if ($userType === 'Utente' && $userInfo['userTipologia'] === 'Premium') { ?>
             <div class="mb-3 row">
                 <label for="inputInizioAbbonamento" class="col-sm-2 col-form-label">Inizio Abbonamento</label>
@@ -203,14 +189,50 @@ $pdo = null;
                 </div>
             </div>
         <?php } ?>
-
-        <!-- Submit Buttons -->
-<!--        --><?php //if (!isset($_POST['modifica'])) { ?>
-<!--            <button type="submit" name="modifica" class="btn btn-primary">Modifica</button>-->
-<!--        --><?php //} else { ?>
-<!--            <button type="submit" name="aggiorna" class="btn btn-success">Aggiorna</button>-->
-<!--        --><?php //} ?>
     </form>
 </div>
 </body>
 </html>
+<style>
+    body {
+        background-color: #F5F7FA;
+        color: #fff;
+    }
+
+    .container {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        max-width: 800px; /* Set a maximum width for the container */
+        margin: 0 auto; /* Center the container horizontally */
+    }
+
+    h1 {
+        color: #222;
+        text-align: center;
+        padding: 10px;
+        border-radius: 4px;
+    }
+
+    label {
+        color: #777;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="date"],
+    select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        margin-bottom: 10px; /* Add some space between fields */
+    }
+
+    /* Style for readonly input fields */
+    .form-control[readonly] {
+        background-color: #f8f9fa;
+        color: #333;
+    }
+</style>

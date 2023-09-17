@@ -1,12 +1,17 @@
 <?php
 session_start();
 if (!isset($_SESSION['user'])) {
-    // Redirect the user to the login page or any other desired page
-    header("Location: login.php"); // Change "login.php" to the desired page
-    exit(); // Ensure script execution stops here
+
+    header("Location: login.php");
+    exit();
+}
+
+if ($_SESSION['user']['tipologiaUtente'] === 'Azienda') {
+    header("Location: error.php");
+    exit();
 }
 global $pdo;
-include "db/connect.php"; // Include your database connection script
+include "db/connect.php";
 
 try {
     $userId = $_SESSION['user']['idUtente'];
@@ -24,8 +29,6 @@ try {
          $stmtSentInvitations->closeCursor();
      }
 
-
-    // Call the stored procedure to fetch invitations
     $sqlInvitations = "CALL getListaInvitoRicevente(?)";
 
     $stmtInvitations = $pdo->prepare($sqlInvitations);
@@ -56,7 +59,11 @@ try {
 <?php include 'includes/header.php'; ?>
 <?php if ($userType != 'Azienda') { ?>
 <div class="container">
-    <h2>Inviti ricevuti</h2>
+    <div class="row">
+        <div class="col-sm-8">
+            <h2>Inviti Ricevuti</h2>
+        </div>
+    </div>
     <table class="table table-bordered">
         <thead>
         <tr>
@@ -85,56 +92,61 @@ try {
 </div>
 <?php } ?>
 <?php
-if ($userType == 'Premium') { ?>
-<div class="container">
-    <h2>Inviti mandati</h2>
-    <div class="col-sm-4">
-        <a href="invito_creazione.php" type="button" class="btn btn-info add-new"><i class="fa fa-plus"></i> Crea Invito</a>
-    </div>
-    <table class="table table-bordered">
-        <thead>
-        <tr>
-            <th>Sondaggio</th>
-            <th>Mittente</th>
-            <th>Stato</th>
-        </tr>
-        </thead>
-        <tbody>
-        <?php foreach ($sentInvitations as $sentInvitation) { ?>
+if ($userType == 'Premium' || $userType == 'Amministratore' ) { ?>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-8">
+                <h2>Inviti mandati</h2>
+            </div>
+            <div class="col-sm-4 text-right">
+                <a href="invito_creazione.php" type="button" class="btn btn-info add-new"><i class="fa fa-plus"></i> Crea Invito</a>
+            </div>
+        </div>
+
+        <table class="table table-bordered">
+            <thead>
             <tr>
-                <td><?php echo $sentInvitation['sondaggio_nome']; ?></td>
-                <td><?php echo $sentInvitation['destinatario_email']; ?></td>
-                <td>
-                    <?php if ($sentInvitation['hasValue'] == 0) { ?>
-                        sconosciuto
-                    <?php } else { ?>
-                        <?php echo $sentInvitation['esito']; ?>
-                    <?php } ?>
-                </td>
+                <th>Sondaggio</th>
+                <th>Mittente</th>
+                <th>Stato</th>
             </tr>
-        <?php } ?>
-        </tbody>
-    </table>
-</div>
+            </thead>
+            <tbody>
+            <?php foreach ($sentInvitations as $sentInvitation) { ?>
+                <tr>
+                    <td><?php echo $sentInvitation['sondaggio_nome']; ?></td>
+                    <td><?php echo $sentInvitation['destinatario_email']; ?></td>
+                    <td>
+                        <?php if ($sentInvitation['hasValue'] == 0) { ?>
+                            sconosciuto
+                        <?php } else { ?>
+                            <?php echo $sentInvitation['esito']; ?>
+                        <?php } ?>
+                    </td>
+                </tr>
+            <?php } ?>
+            </tbody>
+        </table>
+    </div>
 <?php } ?>
 </body>
 </html>
 <script>
     $(document).ready(function () {
-        // Handle click on "Accetta" button
+
         $(".accept-invitation").click(function () {
             var invitationId = $(this).data("invitation-id");
             respondToInvitation(invitationId, "Accettato");
         });
 
-        // Handle click on "Rifiuta" button
+
         $(".reject-invitation").click(function () {
             var invitationId = $(this).data("invitation-id");
             respondToInvitation(invitationId, "Rifiutato");
         });
 
         function respondToInvitation(invitationId, response) {
-            // Make an AJAX call to invito_risposta.php
+
             $.ajax({
                 type: "POST",
                 url: "invito_risposta.php",
@@ -143,12 +155,12 @@ if ($userType == 'Premium') { ?>
                     response: response
                 },
                 success: function (data) {
-                    // Handle the success response, e.g., update the UI
-                    alert(data); // Show a success message (you can replace this with your own handling)
+
+                    alert(data);
                     location.reload();
                 },
                 error: function (xhr, status, error) {
-                    // Handle errors here
+
                     console.error(error);
                     alert("Error: " + error);
                     location.reload();
@@ -157,3 +169,11 @@ if ($userType == 'Premium') { ?>
         }
     });
 </script>
+
+<style>
+
+    .container {
+        margin: 100px auto;
+    }
+
+</style>

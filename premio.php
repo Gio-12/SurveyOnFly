@@ -2,36 +2,35 @@
 global $pdo;
 session_start();
 if (!isset($_SESSION['user'])) {
-    // Redirect the user to the login page or any other desired page
-    header("Location: login.php"); // Change "login.php" to the desired page
-    exit(); // Ensure script execution stops here
+
+    header("Location: login.php");
+    exit();
 }
-include "db/connect.php"; // Include your database connection script
+
+if ($_SESSION['user']['tipologiaUtente'] === 'Azienda') {
+    header("Location: error.php");
+    exit();
+}
+include "db/connect.php";
 try {
-    // Prepare the call to the stored procedure to get the list of all prizes
+
     $sqlAllPrizes = "CALL getListaPremio()";
     $stmtAllPrizes = $pdo->prepare($sqlAllPrizes);
 
-    // Execute the stored procedure to get all prizes
     $stmtAllPrizes->execute();
 
-    // Fetch the results of all prizes into an associative array
     $premiList = $stmtAllPrizes->fetchAll(PDO::FETCH_ASSOC);
 
     $stmtAllPrizes->closeCursor();
 
-    // Prepare the call to the stored procedure to get prizes of the logged-in user
     $sqlUserPrizes = "CALL 	getListaPremioUtente(?)";
     $stmtUserPrizes = $pdo->prepare($sqlUserPrizes);
 
-    // Bind the user's ID as input
     $userId = $_SESSION['user']['idUtente'];
     $stmtUserPrizes->bindParam(1, $userId, PDO::PARAM_INT);
 
-    // Execute the stored procedure to get user-specific prizes
     $stmtUserPrizes->execute();
 
-    // Fetch the results of user-specific prizes into an associative array
     $userPrizes = $stmtUserPrizes->fetchAll(PDO::FETCH_ASSOC);
 
     $stmtUserPrizes->closeCursor();
@@ -59,18 +58,16 @@ try {
 
 <?php include 'includes/header.php'; ?>
 
-<div class="container-flex">
+<div class="container">
     <div class="table-responsive">
         <div class="table-wrapper">
             <div class="table-title">
                 <div class="row">
-                    <div class="col-sm-8"><h2>Lista <b>Premi</b></h2></div>
-                    <div class="col-sm-4">
-<!--                        --><?php //if ($_SESSION['user']['tipologia'] === 'Amministratore') { ?>
-                            <a href="premio_add.php" type="button" class="btn btn-info add-new"><i class="fa fa-plus"></i> Aggiungi Nuovo Premio</a>
-<!--                        --><?php //} else {
-//                            echo '<td></td>';
-//                        }?>
+                    <div class="col-sm-8 text-left"><h2>Lista <b>Premi</b></h2></div>
+                    <div class="col-sm-4 text-right">
+                        <?php if ($_SESSION['user']['tipologia'] === 'Amministratore') { ?>
+                            <a href="premio_add.php" type="button" class="btn btn-dark add-new"><i class="fa fa-plus"></i> Aggiungi Nuovo Premio</a>
+                        <?php } ?>
                     </div>
                 </div>
             </div>
@@ -80,7 +77,7 @@ try {
                     <th>Nome</th>
                     <th>Descrizione</th>
                     <th>Foto</th>
-                    <th>NumMinimoPunti</th>
+                    <th>Minimo</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -100,20 +97,14 @@ try {
 <div class="container">
     <h2>User's Prizes Carousel</h2>
     <div id="userPrizesCarousel" class="carousel slide" data-ride="carousel">
-        <!-- Slides -->
         <div class="carousel-inner">
             <?php foreach ($userPrizes as $index => $prize) { ?>
                 <div class="carousel-item<?php echo ($index === 0) ? ' active' : ''; ?>">
-<!--                    <img src="--><?php //echo $prize['foto']; ?><!--" alt="Prize Image">-->
                     <h1><?php echo $prize['nome']; ?></h1>
-<!--                    <div class="carousel-caption">-->
-<!--                        <h3>--><?php //echo $prize['nome']; ?><!--</h3>-->
-<!--                    </div>-->
                 </div>
             <?php } ?>
         </div>
 
-        <!-- Controls -->
         <a class="carousel-control-prev" href="#userPrizesCarousel" role="button" data-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
             <span class="sr-only">Previous</span>
@@ -135,7 +126,7 @@ try {
     }
 
     .table-wrapper {
-        width: 100%;
+        width: 80%;
         margin: 30px auto;
         background: #fff;
         padding: 20px;
@@ -161,6 +152,8 @@ try {
         min-width: 100px;
         border-radius: 50px;
         line-height: 13px;
+        background-color: #222;
+        color: #fff;
     }
 
     .table-title .add-new i {
@@ -203,7 +196,6 @@ try {
     table.table td i {
         font-size: 19px;
     }
-
 
     table.table .form-control {
         height: 32px;

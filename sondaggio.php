@@ -1,7 +1,12 @@
 <?php
 global $pdo;
 session_start();
-// Include your database connection script
+
+if ($_SESSION['user']['tipologiaUtente'] === 'Azienda') {
+    header("Location: error.php");
+    exit();
+}
+
 include "db/connect.php";
 
 try {
@@ -11,7 +16,7 @@ try {
     $listaSondaggioCreatore = array();
     $listaSondaggioPartecipante = array();
 
-    // Check if the user type allows access to ListaSondaggioCreatore
+
     if ($userType === 'Premium' || $userType === 'Amministratore' || $userType === 'Azienda') {
         $sqlListaSondaggioCreatore = "CALL getListaSondaggioCreatore(?)";
 
@@ -23,7 +28,7 @@ try {
         $stmtListaSondaggioCreatore->closeCursor();
     }
 
-    // Check if the user type allows access to ListaSondaggioPartecipante
+
     if ($userType === 'Premium' || $userType === 'Amministratore' || $userType === 'Semplice' ) {
         $sqlListaSondaggioPartecipante = "CALL getListaSondaggioPartecipante(?)";
 
@@ -55,9 +60,10 @@ try {
 <body>
 <?php include 'includes/header.php'; ?>
 <div class="container">
-    <h2>Sondaggi Partecipati</h2>
+    <div class="row">
+        <div class="col-sm-8 text-left"><h2>Sondaggi Partecipati</h2></div>
+    </div>
     <table class="table table-bordered">
-        <!-- Table header -->
         <thead>
         <tr>
             <th>titolo</th>
@@ -86,7 +92,6 @@ try {
                 <td>
                     <?php
                     if ($survey['stato'] === 'Aperto' && $survey['completato'] !== 1) {
-                        // Display a button linked to the survey_partecipazione page
                         echo '<a href="sondaggio_partecipazione.php?SondaggioId=' . $survey['id'] . '" class="btn btn-primary">Avvia</a>';
                     } else {
                         echo '<a href="sondaggio_visualizzazioneUtente.php?SondaggioId=' . $survey['id'] . '" class="btn btn-primary">Visualizza</a>';
@@ -100,15 +105,17 @@ try {
 </div>
 
 <?php
-// Check if the user has permission to view "Sondaggi Creati" table
+
 if ($userType === 'Premium' || $userType === 'Azienda' || $userType === 'Amministratore') {
     ?>
     <div class="container">
-        <h2>Sondaggi Creati
+        <div class="row">
+            <div class="col-sm-8 text-left"><h2>Sondaggi Creati</h2></div>
+            <div class="col-sm-4 text-right">
                 <a href="sondaggio_creazione.php" type="button" class="btn btn-info add-new"><i class="fa fa-plus"></i> Aggiungi Nuovo Sondaggio</a>
-        </h2>
+            </div>
+        </div>
         <table class="table table-bordered">
-            <!-- Table header -->
             <thead>
             <tr>
                 <th>titolo</th>
@@ -135,10 +142,8 @@ if ($userType === 'Premium' || $userType === 'Azienda' || $userType === 'Amminis
                     <td>
                         <?php
                         if ($survey['stato'] === 'Creazione') {
-                            // Display a button linked to sondaggio_creazione.php
                             echo '<a href="sondaggio_gestioneCreazione.php?SondaggioId=' . $survey['id'] . '" class="btn btn-primary">Procedura Creazione</a>';
                         } elseif ($survey['stato'] === 'Aperto' || $survey['stato'] === 'Chiuso') {
-                            // Display a button linked to sondaggio_visualizzazione.php
                             echo '<a href="sondaggio_visualizzazione.php?SondaggioId=' . $survey['id'] . '" class="btn btn-success">Visualizza</a>';
                         }
                         ?>
@@ -151,4 +156,8 @@ if ($userType === 'Premium' || $userType === 'Azienda' || $userType === 'Amminis
 <?php } ?>
 </body>
 </html>
-
+<style>
+    .container{
+        margin: 50px auto;
+    }
+</style>

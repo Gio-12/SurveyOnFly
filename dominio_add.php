@@ -2,23 +2,21 @@
 global $pdo;
 session_start();
 if (!isset($_SESSION['user'])) {
-    // Redirect the user to the login page or any other desired page
-    header("Location: login.php"); // Change "login.php" to the desired page
-    exit(); // Ensure script execution stops here
-}
-include "db/connect.php"; // Include your database connection script
 
-// DA ATTIVARE ALLA FINE
-//if ($_SESSION['user']['tipologia'] !== 'Amministratore') {
-//    // Redirect to a restricted access page or display an error message
-//    echo "Access denied. You must be an administrator to access this page.";
-//    exit();
-//}
+    header("Location: login.php");
+    exit();
+}
+include "db/connect.php";
+
+if ($_SESSION['user']['tipologia'] !== 'Amministratore') {
+    echo "Access denied. You must be an administrator to access this page.";
+    exit();
+}
+
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     try {
-        // Prepare the call to the stored procedure addDominioAmministrazione
-        // Bind parameters using PDO-style binding
+
         $adminUserId = $_SESSION['user']['idUtente'];
         $newNome = $_POST["new_Nome"];
         $newDescrizione = $_POST["new_Descrizione"];
@@ -35,14 +33,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 alert("Dominio aggiunto correttamente");
                 setTimeout(function() {
                     window.location.href = "dominio.php";
-                }, 3000); // Redirect to the dominio list page
+                }, 3000); 
             </script>';
-            exit(); // Make sure to exit after the JavaScript code
+            exit();
         } else {
-            echo "Error: " . $stmtAddDominio->errorInfo()[2]; // Use errorInfo to get the error message
+            echo "Error: " . $stmtAddDominio->errorInfo()[2];
         }
 
-        $stmtAddDominio->closeCursor(); // Close the cursor to release resources
+        $stmtAddDominio->closeCursor();
     } catch (PDOException $e) {
         echo "Error: " . $e->getMessage();
     }
@@ -76,14 +74,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </body>
 </html>
 <style>
-    /* Custom CSS for Google-like login form */
+
     body {
         background-color: #f0f0f0;
     }
 
     .container {
         max-width: 400px;
-        margin: 0 auto;
+        margin: 50px auto;
         padding: 20px;
         background-color: #fff;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -103,8 +101,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     .btn-primary {
-        background-color: #4285f4;
-        border-color: #4285f4;
+        background-color: #222;
+        border-color: #222;
         width: 100%;
         padding: 10px;
     }

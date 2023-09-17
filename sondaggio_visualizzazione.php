@@ -1,19 +1,16 @@
 <?php
 session_start();
-include "db/connect.php"; // Include your database connection script
+include "db/connect.php";
 global $pdo;
-global $surveyId; // Make sure to set the $surveyId based on your requirements
+global $surveyId;
 
 if (isset($_GET['SondaggioId'])) {
     $surveyId = ($_GET['SondaggioId']);
-    // Query the database to retrieve the survey with $surveyId
-    // If the survey exists, display its details
-    // Otherwise, show an error message like "Sondaggio not found"
 } else {
     echo "Invalid request: Missing 'SondaggioId' parameter";
+    exit;
 }
 
-// Call the stored procedure to retrieve survey details
 $selected_idSondaggio = (int)$surveyId;
 $sqlGetSondaggio = "CALL getSondaggioSingolo(?)";
 
@@ -24,9 +21,7 @@ try {
 
     $surveyDetails = $stmtGetSondaggio->fetch(PDO::FETCH_ASSOC);
 
-    // Check if a valid survey is found
     if (!$surveyDetails) {
-        // Handle error, e.g., survey not found
         echo "Sondaggio not found";
         exit;
     }
@@ -38,13 +33,12 @@ try {
     $stato = $surveyDetails['stato'];
     $numMaxPartecipanti = $surveyDetails['numMaxPartecipanti'];
     $numeroIscritti = $surveyDetails['numeroIscritti'];
-    $stmtGetSondaggio ->closeCursor();
+    $stmtGetSondaggio->closeCursor();
 } catch (PDOException $e) {
     echo "Error fetching survey data: " . $e->getMessage();
     exit;
 }
 
-// Call the stored procedure to retrieve questions for the survey
 $sqlGetDomande = "CALL getDomandeSondaggio(?)";
 
 try {
@@ -54,7 +48,7 @@ try {
 
     $domande = $stmtGetDomande->fetchAll(PDO::FETCH_ASSOC);
 
-    $stmtGetDomande -> closeCursor();
+    $stmtGetDomande->closeCursor();
 } catch (PDOException $e) {
     echo "Error fetching questions: " . $e->getMessage();
     exit;
@@ -67,22 +61,30 @@ try {
 <head>
     <meta charset="utf-8">
     <title>Sondaggio Visualizzazione</title>
-    <!-- Include Bootstrap libraries -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round|Open+Sans">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 </head>
 
 <body>
 <?php include 'includes/header.php'; ?>
-<div class="container mt-5">
-    <h1>Sondaggio Visualizzazione</h1>
-    <button onclick="goBack()">Torna Indietro</button>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-8 text-left">
+            <div class="page-title">
+                <h1>SONDAGGIO </h1>
+            </div>
+        </div>
+        <div class="col-sm-4 text-right">
+            <button class="btn btn-primary go-back-button" onclick="goBack()">Indietro</button>
+        </div>
+    </div>
 
-    <script>
-        function goBack() {
-            window.history.back();
-        }
-    </script>
-    <div class="mb-3">
+    <div class="survey-details">
         <h2>Dettagli Sondaggio</h2>
         <p><strong>Titolo:</strong> <?php echo $titolo; ?></p>
         <p><strong>Data Creazione:</strong> <?php echo $dataCreazione; ?></p>
@@ -93,7 +95,7 @@ try {
         <p><strong>Numero di Iscritti:</strong> <?php echo $numeroIscritti; ?></p>
     </div>
 
-    <div class="mb-3">
+    <div class="question-list">
         <h2>Domande del Sondaggio</h2>
         <table class="table">
             <thead>
@@ -130,7 +132,7 @@ try {
                                 echo $opzione['domanda_testo'] . "<br>";
                             }
 
-                            $stmtGetOpzioni -> closeCursor();
+                            $stmtGetOpzioni->closeCursor();
                         } catch (PDOException $e) {
                             echo "Error fetching options: " . $e->getMessage();
                         }
@@ -142,8 +144,24 @@ try {
         </table>
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 </body>
-
 </html>
+<script>
+    function goBack() {
+        window.history.back();
+    }
+</script>
+<style>
+    .container {
+        margin-top: 20px;
+    }
+    .survey-details {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 5px;
+    }
+
+    .question-list {
+        margin-top: 20px;
+    }
+</style>

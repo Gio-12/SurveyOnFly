@@ -2,37 +2,33 @@
 global $pdo;
 session_start();
 if (!isset($_SESSION['user'])) {
-    // Redirect the user to the login page or any other desired page
-    header("Location: login.php"); // Change "login.php" to the desired page
-    exit(); // Ensure script execution stops here
+    header("Location: login.php");
+    exit();
 }
-include "db/connect.php"; // Include your database connection script
+
+if ($_SESSION['user']['tipologiaUtente'] === 'Azienda') {
+    header("Location: error.php");
+    exit();
+}
+
+include "db/connect.php";
 $userDomainsList = [];
 try {
-    // Prepare the call to the stored procedure to get the list of all domains
     $sqlAllDomains = "CALL getListaDominio()";
     $stmtAllDomains = $pdo->prepare($sqlAllDomains);
 
-    // Execute the stored procedure to get all domains
     $stmtAllDomains->execute();
-
-    // Fetch the results of all domains into an associative array
     $domainsList = $stmtAllDomains->fetchAll(PDO::FETCH_ASSOC);
-
     $stmtAllDomains->closeCursor();
 
     $sqlAllUserDomains = "CALL getListaDominioUtente(?)";
     $stmtAllUserDomains = $pdo->prepare($sqlAllUserDomains);
 
     $userId = $_SESSION['user']['idUtente'];
-
     $stmtAllUserDomains->bindParam(1, $userId, PDO::PARAM_INT);
-    // Execute the stored procedure to get all user domains
+
     $stmtAllUserDomains->execute();
-
-    // Fetch the results of all user domains into an associative array
     $userDomainsList = $stmtAllUserDomains->fetchAll(PDO::FETCH_ASSOC);
-
     $stmtAllUserDomains->closeCursor();
 } catch (PDOException $e) {
     echo "Error: " . $e->getMessage();
@@ -59,9 +55,9 @@ try {
 <div class="container-flex">
     <div class="table-responsive">
         <div class="table-wrapper">
-            <div class="table-title">
+            <div class="table-title" >
                 <div class="row">
-                    <div class="col-sm-8"><h2>Lista <b>Domini</b></h2></div>
+                    <div class="col-sm-8 text-left"><h2>Lista <b>Domini</b></h2></div>
                     <div class="col-sm-4">
                         <?php if ($_SESSION['user']['tipologia'] === 'Amministratore') { ?>
                             <a href="dominio_add.php" type="button" class="btn btn-info add-new"><i
@@ -84,7 +80,6 @@ try {
                     $isUserDomain = false;
 
                     if ($userDomainsList !== null) {
-                        // Check if the domain is in the user's domain list
                         foreach ($userDomainsList as $userDomain) {
                             if ($userDomain['idDominio'] === $domainId) {
                                 $isUserDomain = true;
@@ -94,19 +89,17 @@ try {
                     }
                     ?>
                     <tr data-domain-id="<?php echo $domainId; ?>" data-is-user-domain="<?php echo $isUserDomain ? 'true' : 'false'; ?>">
-                    <td><?php echo $dominio['nome']; ?></td>
-                    <td><?php echo $dominio['descrizione']; ?></td>
-                    <td>
-                        <?php if ($isUserDomain) { ?>
-                            <!-- Show Remove button -->
-                            <a href="#" class="action-link remove" title="Remove" data-toggle="tooltip"
-                               data-action="remove"><i class="material-icons">&#xE872;</i></a>
-                        <?php } else { ?>
-                            <!-- Show Add button -->
-                            <a href="#" class="action-link add" title="Add" data-toggle="tooltip"
-                               data-action="add"><i class="material-icons">&#xE03B;</i></a>
-                        <?php } ?>
-                    </td>
+                        <td><?php echo $dominio['nome']; ?></td>
+                        <td><?php echo $dominio['descrizione']; ?></td>
+                        <td>
+                            <?php if ($isUserDomain) { ?>
+                                <a href="#" class="action-link remove" title="Remove" data-toggle="tooltip"
+                                   data-action="remove"><i class="material-icons">&#xE872;</i></a>
+                            <?php } else { ?>
+                                <a href="#" class="action-link add" title="Add" data-toggle="tooltip"
+                                   data-action="add"><i class="material-icons">&#xE03B;</i></a>
+                            <?php } ?>
+                        </td>
                     </tr>
                 <?php } ?>
                 </tbody>
@@ -120,7 +113,6 @@ try {
 
 <script>
     $(document).ready(function () {
-        // Handle click on "Add" or "Remove" links
         $(".action-link").click(function (e) {
             e.preventDefault();
 
@@ -128,12 +120,10 @@ try {
             const domainId = domainRow.data("domain-id");
             const isUserDomain = domainRow.data("is-user-domain") === true;
 
-            // Define the PHP script URLs for adding and removing domains
-            const addDomainUrl = "dominio_addUtente.php"; // Replace with the actual URL
-            const removeDomainUrl = "dominio_remove.php"; // Replace with the actual URL
+            const addDomainUrl = "dominio_addUtente.php";
+            const removeDomainUrl = "dominio_remove.php";
 
             if ($(this).hasClass("add")) {
-                // User clicked "Add" button
                 $.ajax({
                     type: "POST",
                     url: addDomainUrl,
@@ -141,16 +131,14 @@ try {
                         domainId: domainId,
                     },
                     success: function (response) {
-                        alert(response); // Show success message
-                        // Update the DOM or perform other actions as needed
+                        alert(response);
                         location.reload();
                     },
                     error: function (xhr, status, error) {
-                        alert("Error: " + error); // Handle the error
+                        alert("Error: " + error);
                     },
                 });
             } else if ($(this).hasClass("remove")) {
-                // User clicked "Remove" button
                 $.ajax({
                     type: "POST",
                     url: removeDomainUrl,
@@ -158,12 +146,11 @@ try {
                         domainId: domainId,
                     },
                     success: function (response) {
-                        alert(response); // Show success message
-                        // Update the DOM or perform other actions as needed
+                        alert(response);
                         location.reload();
                     },
                     error: function (xhr, status, error) {
-                        alert("Error: " + error); // Handle the error
+                        alert("Error: " + error);
                     },
                 });
             }
@@ -179,7 +166,7 @@ try {
     }
 
     .table-wrapper {
-        width: 100%;
+        width: 80%;
         margin: 30px auto;
         background: #fff;
         padding: 20px;
@@ -194,6 +181,7 @@ try {
     .table-title h2 {
         margin: 6px 0 0;
         font-size: 22px;
+        color: #222;
     }
 
     .table-title .add-new {
@@ -205,6 +193,11 @@ try {
         min-width: 100px;
         border-radius: 50px;
         line-height: 13px;
+        background-color: #222;
+        color: #fff;
+        text-align: center;
+        padding-top: 5px;
+        margin-top: 5px;
     }
 
     .table-title .add-new i {
@@ -247,7 +240,6 @@ try {
     table.table td i {
         font-size: 19px;
     }
-
 
     table.table .form-control {
         height: 32px;

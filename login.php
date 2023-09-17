@@ -1,7 +1,7 @@
 <?php
 global $pdo;
 session_start();
-include "db/connect.php"; // Assicurati che questo include sia corretto e includa la connessione al database.
+include "db/connect.php";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST["email"];
@@ -36,11 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     'tipologia' => $utente_tipologiaUtenteFisico,
                 ];
                 echo '<script>
-                  alert("Registrazione Completata! \n' .
-                    'ID Utente: ' . $_SESSION['user']['idUtente'] . '\n' .
-                    'Email: ' . $_SESSION['user']['email'] . '\n' .
-                    'Tipologia Utente: ' . $_SESSION['user']['tipologiaUtente'] . '\n' .
-                    'Tipologia: ' . $_SESSION['user']['tipologia'] . '");
+                  alert("Registrazione Completata!");
                 setTimeout(function() {
                     window.location.href = "dashboard.php";
                 }, 3000); // 3 seconds delay
@@ -61,31 +57,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html lang="it">
 
 <head>
-    <meta charset="utf-8">
     <title>LOGIN</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
-    <style>
-        /* Add custom styles for the login container */
-        .login-container {
-            max-width: 400px;
-            margin: 50px auto;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            background-color: #fff;
-        }
-
-        /* Add custom styles for the form within the container */
-        .login-form {
-            text-align: center;
-        }
-    </style>
+    <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round|Open+Sans">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 </head>
 
 <body>
 <div class="login-container">
-    <h1 class="text-center">User Login</h1>
+    <h1 class="text-center"><b>USER LOGIN<b></h1>
     <?php if (isset($loginError)) : ?>
         <div class="alert alert-danger" role="alert">
             <?php echo $loginError; ?>
@@ -116,16 +101,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <style>
     body {
         font-family: Arial, sans-serif;
-        background-color: #f2f2f2;
+        background-color: #222;
+        color: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .login-container {
+        max-width: 800px;
+        padding: 40px;
+        color: #222;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .login-form {
+        text-align: center;
     }
 
     h1 {
         text-align: center;
-        color: #4285f4; /* Google Blue */
+        font-size: 24px;
+        color: #222;
     }
 
     form {
-        max-width: 400px;
+        max-width: 800px;
         margin: 0 auto;
         padding: 20px;
         background-color: #fff;
@@ -135,9 +139,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     label {
         display: block;
-        margin-bottom: 8px;
+        margin-bottom: 16px;
         font-weight: bold;
         color: #555;
+        font-size: 18px;
     }
 
     input[type="text"],
@@ -146,16 +151,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     input[type="date"],
     select {
         width: 100%;
-        padding: 10px;
-        margin-bottom: 15px;
+        padding: 12px;
+        margin-bottom: 20px;
         border: 1px solid #ccc;
         border-radius: 4px;
         box-sizing: border-box;
-        font-size: 16px;
+        font-size: 18px;
     }
 
     select {
-        appearance: auto; /* Remove default select arrow on some browsers */
+        appearance: auto;
         -webkit-appearance: none;
         -moz-appearance: none;
         background-image: url('data:image/svg+xml;utf8,<svg fill="#000000" height="24" width="24" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 64 64"><path d="M62,11c0-4.8-3.2-9-8-9H10C4.4,2,0,6.4,0,12v40c0,5.6,4.4,10,10,10h44c5.6,0,10-4.4,10-10V11z M11,4h42c3.3,0,6,2.7,6,6v38 c0,3.3-2.7,6-6,6H11c-3.3,0-6-2.7-6-6V10C5,6.7,7.7,4,11,4z M53,54c0,2.2-1.8,4-4,4H11c-2.2,0-4-1.8-4-4V12c0-2.2,1.8-4,4-4h42 c2.2,0,4,1.8,4,4V54z"/><path d="M33.8,46.8c-0.2,0.2-0.5,0.2-0.7,0L27,41.4c-0.2-0.2-0.2-0.5,0-0.7s0.5-0.2,0.7,0l4.3,4.3l4.3-4.3c0.2-0.2,0.5-0.2,0.7,0 s0.2,0.5,0,0.7L36,46.1L40.3,50.4c0.2,0.2,0.2,0.5,0,0.7c-0.2,0.2-0.5,0.2-0.7,0L36,47.9l-4.3,4.3c-0.2,0.2-0.5,0.2-0.7,0 c-0.2-0.2-0.2-0.5,0-0.7L35,46.1L30.7,41.8C30.5,41.6,30.5,41.3,30.7,41c0.2-0.2,0.5-0.2,0.7,0l4.3,4.3l4.3-4.3c0.2-0.2,0.5-0.2,0.7,0 c0.2,0.2,0.2,0.5,0,0.7L38,46.1L42.3,50.4c0.2,0.2,0.2,0.5,0,0.7c-0.2,0.2-0.5,0.2-0.7,0L38,47.9L33.8,46.8z"/></svg>');
@@ -165,26 +170,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     input[type="submit"] {
-        background-color: #4285f4; /* Google Blue */
+        background-color: #222;
         color: #fff;
         font-size: 18px;
         border: none;
         border-radius: 4px;
-        padding: 12px 20px;
+        padding: 16px 24px; /* Increased padding */
         cursor: pointer;
         transition: background-color 0.3s;
     }
 
     input[type="submit"]:hover {
-        background-color: #357ae8; /* Hover color */
+        background-color: #357ae8;
     }
 
-    /* Adjust the styles of select boxes based on Google's style */
     select::-ms-expand {
-        display: none; /* Remove default arrow in IE/Edge */
+        display: none;
     }
 
-    /* Media query for small screens */
     @media (max-width: 600px) {
         form {
             width: 80%;

@@ -112,9 +112,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
 <?php include 'includes/header.php'; ?>
 <div class="container mt-5">
-    <h1>Aggiungi Domanda al sondaggio</h1>
-    <button onclick="goBack()">Torna Indietro</button>
-
+    <div class="row">
+        <div class="col-sm-8 text-left">
+            <div class="page-title">
+                <h1>Aggiungi Domanda al sondaggio</h1>
+            </div>
+        </div>
+        <div class="col-sm-4 text-right">
+            <button class="btn btn-primary go-back-button" onclick="goBack()">Indietro</button>
+        </div>
+    </div>
     <script>
         function goBack() {
             window.history.back();
