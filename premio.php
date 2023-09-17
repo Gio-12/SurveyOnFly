@@ -85,7 +85,22 @@ try {
                     <tr>
                         <td><?php echo $premio['nome']; ?></td>
                         <td><?php echo $premio['descrizione']; ?></td>
-                        <td><?php echo $premio['foto']; ?></td>
+                        <td>
+                            <?php
+                            // Check if foto exists and is not empty
+                            if (!empty($premio['foto'])) {
+                                // Convert BLOB data to base64
+                                $fotoBase64 = base64_encode($premio['foto']);
+                                // Create a data URI for the image
+                                $fotoDataURI = "data:image/jpeg;base64,$fotoBase64";
+                                // Display the image using the data URI
+                                echo "<img src=\"$fotoDataURI\" alt=\"Prize Image\" width=\"100\" height=\"100\">";
+                            } else {
+                                // If there's no image, display a placeholder or message
+                                echo "<p>No image available</p>";
+                            }
+                            ?>
+                        </td>
                         <td><?php echo $premio['numMinimoPunti']; ?></td>
                     </tr>
                 <?php } ?>
@@ -95,25 +110,42 @@ try {
     </div>
 </div>
 <div class="container">
-    <h2>User's Prizes Carousel</h2>
-    <div id="userPrizesCarousel" class="carousel slide" data-ride="carousel">
-        <div class="carousel-inner">
-            <?php foreach ($userPrizes as $index => $prize) { ?>
-                <div class="carousel-item<?php echo ($index === 0) ? ' active' : ''; ?>">
-                    <h1><?php echo $prize['nome']; ?></h1>
-                </div>
-            <?php } ?>
-        </div>
+    <?php if (!empty($userPrizes) || $userPrizes != null || $userPrizes != 0) { ?>
+        <h2>User's Prizes Carousel</h2>
+        <div id="userPrizesCarousel" class="carousel slide" data-ride="carousel">
+            <div class="carousel-inner">
+                <?php foreach ($userPrizes as $index => $prize) { ?>
+                    <div class="carousel-item<?php echo ($index != 0 || $index != null) ? ' active' : ''; ?>">
+                        <?php
+                        if (!empty($prize['foto'])) {
+                        // Convert BLOB data to base64
+                        $fotoBase64 = base64_encode($prize['foto']);
+                        // Create a data URI for the image
+                        $fotoDataURI = "data:image/jpeg;base64,$fotoBase64";
+                        // Display the image using the data URI
+                        echo "<img src=\"$fotoDataURI\" alt=\"Prize Image\">";
+                        } else {
+                        // If there's no image, display a placeholder or message
+                        echo "<p>No image available</p>";
+                        }
+                        ?>
+                        <h1><?php echo $prize['nome']; ?></h1>
+                    </div>
+                <?php } ?>
+            </div>
 
-        <a class="carousel-control-prev" href="#userPrizesCarousel" role="button" data-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="sr-only">Previous</span>
-        </a>
-        <a class="carousel-control-next" href="#userPrizesCarousel" role="button" data-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="sr-only">Next</span>
-        </a>
-    </div>
+            <a class="carousel-control-prev" href="#userPrizesCarousel" role="button" data-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="sr-only">Previous</span>
+            </a>
+            <a class="carousel-control-next" href="#userPrizesCarousel" role="button" data-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="sr-only">Next</span>
+            </a>
+        </div>
+    <?php } else { ?>
+        <p>Nessun Premio ancora</p>
+    <?php } ?>
 </div>
 </body>
 </html>

@@ -112,7 +112,21 @@ try {
             <?php foreach ($domande as $domanda) { ?>
                 <tr>
                     <td><?php echo $domanda['domanda_testo']; ?></td>
-                    <td><?php echo $domanda['domanda_foto']; ?></td>
+                    <td>
+                        <?php
+                        // Check if there is blob data
+                        if (!empty($domanda['domanda_foto'])) {
+                            // Generate a data URI for the image
+                            $imageData = base64_encode($domanda['domanda_foto']);
+                            $imageType = 'image/jpeg'; // Set the appropriate image type
+                            $dataUri = "data:$imageType;base64,$imageData";
+                            ?>
+                            <img src="<?php echo $dataUri; ?>" alt="Image">
+                        <?php } else {
+                            echo "No image available";
+                        }
+                        ?>
+                    </td>
                     <td><?php echo $domanda['domanda_punteggio']; ?></td>
                     <td><?php echo $domanda['domanda_lunghezzaMax']; ?></td>
                     <td><?php echo $domanda['domanda_tipologia']; ?></td>

@@ -108,7 +108,7 @@ try {
                     <h3><?php echo $domanda['domanda_testo']; ?></h3>
                     <?php if ($domanda['domanda_tipologia'] === 'Aperta') { ?>
                         <?php
-                        $maxCharacters = $domanda['domanda_lunghezzaMax']; // Maximum character limit for this question
+                        $maxCharacters = $domanda['domanda_lunghezzaMax'];
                         ?>
                         <label for="domanda_<?php echo $domanda['domanda_id']; ?>">Risposta (Massimo <?php echo $maxCharacters; ?> caratteri):</label>
                         <textarea class="form-control" id="domanda_<?php echo $domanda['domanda_id']; ?>"
@@ -116,7 +116,6 @@ try {
                                   maxlength="<?php echo $maxCharacters; ?>"></textarea>
                     <?php } elseif ($domanda['domanda_tipologia'] === 'Chiusa') { ?>
                         <?php
-                        // Retrieve multiple-choice options for Chiusa questions
                         $domandaId = $domanda['domanda_id'];
                         $sqlGetOpzioni = "CALL getOpzioniDomanda(?)";
 
@@ -127,7 +126,6 @@ try {
 
                             $opzioni = $stmtGetOpzioni->fetchAll(PDO::FETCH_ASSOC);
 
-                            // Display radio buttons for multiple-choice options
                             foreach ($opzioni as $opzione) { ?>
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio"

@@ -106,7 +106,7 @@ try {
 
 <?php
 
-if ($userType === 'Premium' || $userType === 'Azienda' || $userType === 'Amministratore') {
+if ($userType === 'Premium' || $userType === 'Azienda') {
     ?>
     <div class="container">
         <div class="row">

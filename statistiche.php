@@ -1,11 +1,14 @@
 <?php
 global $pdo;
 session_start();
-if (!$_SESSION['user']['tipologiaUtente'] === 'Premium' || !$_SESSION['user']['tipologiaUtente'] === 'Azienda') {
+if ($_SESSION['user']['tipologiaUtente'] === 'Amministratore') {
     header("Location: error.php");
     exit();
 }
-
+if (!$_SESSION['user']['tipologiaUtente'] == 'Premium' || !$_SESSION['user']['tipologiaUtente'] == 'Azienda') {
+    header("Location: error.php");
+    exit();
+}
 include "db/connect.php";
 
 // Initialize variables
@@ -39,9 +42,13 @@ $stmtGetSondaggiCreatore->bindParam(1, $userId, PDO::PARAM_INT);
 $stmtGetSondaggiCreatore->execute();
 $surveys2 = $stmtGetSondaggiCreatore->fetchAll(PDO::FETCH_ASSOC);
 $surveys = [];
-foreach ($surveys2 as $survey) {
-    if ($survey['stato'] === 'Aperto' && $survey['numeroIscritti'] < $survey['numMaxPartecipanti']) {
-        $surveys[] = $survey;
+if (!empty($surveys2) || $surveys2 != null || $surveys2 != 0) {
+    foreach ($surveys2 as $survey) {
+        if (!empty($survey) || $survey != null || $survey != 0) {
+            if (isset($survey['stato']) && $survey['stato'] === 'Aperto' && isset($survey['numeroIscritti']) && isset($survey['numMaxPartecipanti']) && $survey['numeroIscritti'] < $survey['numMaxPartecipanti']) {
+                $surveys[] = $survey;
+            }
+        }
     }
 }
 $stmtGetSondaggiCreatore->closeCursor();

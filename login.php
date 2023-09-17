@@ -36,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     'tipologia' => $utente_tipologiaUtenteFisico,
                 ];
                 echo '<script>
-                  alert("Registrazione Completata!");
+                  alert("Logged!");
                 setTimeout(function() {
                     window.location.href = "dashboard.php";
                 }, 3000); // 3 seconds delay
